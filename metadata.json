@@ -1,0 +1,6 @@
+{
+  "name": "Video and Gaming Portal H5",
+  "description": "A premium mobile-first H5 portal featuring long and short streaming videos, simulated games/chess arenas, and a comprehensive VIP/wallet account system.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* Geometric Balance Theme Colors */
+  --color-brand-bg: #1a1a1a;
+  --color-brand-card: #242424;
+  --color-brand-gold: #D4AF37;
+  --color-brand-purple: #8e2de2;
+  --color-brand-indigo: #4a00e0;
+  --color-brand-gray: #9ca3af;
+}
+
+/* Utilities to hide default scrollbars in categories list */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
+@keyframes marquee {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+@utility animate-marquee {
+  animation: marquee 10s linear infinite;
+}
+
+/* Custom Geometric Balance background and border classes */
+.bg-brand-gradient {
+  background: linear-gradient(135deg, var(--color-brand-purple), var(--color-brand-indigo));
+}
+
+.border-geometric {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
