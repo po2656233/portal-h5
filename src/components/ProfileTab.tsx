@@ -854,13 +854,13 @@ export default function ProfileTab({
                         onUpdateWallet({ goldCoins: wallet.goldCoins + 50 });
                         alert('🎉 奖励领取成功！+50 游戏金币已送达您的资产钱包中。');
                       } else {
-                        alert('⚠️ 尚未检测到您在棋牌馆完成额度转换，请先完成一次转换！');
+                        alert('⚠️ 尚未检测到您在某某馆完成额度转换，请先完成一次转换！');
                       }
                     }},
                     { desc: '✈️ 同城寻欢匹配分享', bonus: '+500 模拟金币', status: '去匹配', action: () => {
                       navigator.clipboard.writeText(`某某社区同城寻欢定位已开启！我的邀请码为：${profile.inviteCode}`);
                       onUpdateWallet({ gameBalance: wallet.gameBalance + 500 });
-                      alert('🔗 分享文案已成功复制！额外赠送您 ￥500.00 棋牌模拟备用金！');
+                      alert('🔗 分享文案已成功复制！额外赠送您 ￥500.00 某某模拟备用金！');
                     }}
                   ].map((t, idx) => (
                     <div key={idx} className="p-3 bg-brand-bg rounded-xl border border-neutral-800 flex justify-between items-center text-xs">

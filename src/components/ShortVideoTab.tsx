@@ -11,6 +11,7 @@ interface ShortVideoTabProps {
   onUpdateWallet: (wallet: Partial<UserWallet>) => void;
   onUpdateProfile: (profile: Partial<UserProfile>) => void;
   onOpenTopup: (type: 'vip' | 'coin') => void;
+  onFullscreenChange?: (isFullscreen: boolean) => void;
 }
 
 export default function ShortVideoTab({
@@ -18,7 +19,8 @@ export default function ShortVideoTab({
   wallet,
   onUpdateWallet,
   onUpdateProfile,
-  onOpenTopup
+  onOpenTopup,
+  onFullscreenChange
 }: ShortVideoTabProps) {
   // Navigation tabs: 'recommend' (推荐) vs 'curated' (精选 - Image 5 style)
   const [activeSubTab, setActiveSubTab] = useState<'recommend' | 'curated'>('recommend');
@@ -42,6 +44,12 @@ export default function ShortVideoTab({
 
   // Immersive Fullscreen override mode state (要铺满当前页 + 全屏)
   const [isImmersiveFullscreen, setIsImmersiveFullscreen] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (onFullscreenChange) {
+      onFullscreenChange(isImmersiveFullscreen);
+    }
+  }, [isImmersiveFullscreen, onFullscreenChange]);
 
   // Comments management
   const [showComments, setShowComments] = useState<boolean>(false);

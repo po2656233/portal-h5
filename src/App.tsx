@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { UserProfile, UserWallet } from './types';
 import LongVideoTab from './components/LongVideoTab';
 import ShortVideoTab from './components/ShortVideoTab';
-import GamesTab from './components/GamesTab';
+import LoufengTab from './components/LoufengTab';
 import ChessTab from './components/ChessTab';
 import ProfileTab from './components/ProfileTab';
 import TopUpModal from './components/TopUpModal';
 import AiUnclotheModal from './components/AiUnclotheModal';
 import CustomerServiceModal from './components/CustomerServiceModal';
-import { Film, PlayCircle, BookOpen, Globe,Gamepad2, User, Gift, Coins, Ticket, Sparkles, AlertCircle, HelpCircle, Info, Star } from 'lucide-react';
+import { Film, PlayCircle, BookOpen, Gamepad2, User, Gift, Coins, Ticket, Sparkles, AlertCircle, HelpCircle, Info, Star, Compass } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function App() {
@@ -34,6 +34,28 @@ export default function App() {
   });
 
   const [activeTab, setActiveTab] = useState<'long' | 'short' | 'games' | 'chess' | 'profile'>('long');
+
+  // Fullscreen tracking states for tabs
+  const [fullscreenStates, setFullscreenStates] = useState<{ [key: string]: boolean }>({
+    long: false,
+    short: false
+  });
+
+  const isAnyFullscreen = Object.values(fullscreenStates).some(v => v);
+
+  const handleLongFullscreenChange = useCallback((isFs: boolean) => {
+    setFullscreenStates(prev => {
+      if (prev.long === isFs) return prev;
+      return { ...prev, long: isFs };
+    });
+  }, []);
+
+  const handleShortFullscreenChange = useCallback((isFs: boolean) => {
+    setFullscreenStates(prev => {
+      if (prev.short === isFs) return prev;
+      return { ...prev, short: isFs };
+    });
+  }, []);
 
   // Modal Control States
   const [isTopUpOpen, setIsTopUpOpen] = useState<boolean>(false);
@@ -142,14 +164,14 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#121212] flex items-center justify-center font-sans antialiased text-white selection:bg-brand-purple selection:text-white">
+    <div className="h-screen h-[100dvh] md:min-h-screen bg-[#121212] flex items-center justify-center font-sans antialiased text-white selection:bg-brand-purple selection:text-white overflow-hidden">
       
       {/* Mobile-first simulated center frame wrapper with Geometric Balance solid borders */}
-      <div className="w-full max-w-md min-h-screen md:min-h-[850px] md:h-[850px] bg-brand-bg shadow-2xl relative flex flex-col justify-between overflow-hidden border-x border-neutral-800 md:border-4 md:border-neutral-800 md:rounded-[32px]">
+      <div className="w-full max-w-md h-screen h-[100dvh] max-h-screen max-h-[100dvh] md:h-[850px] md:min-h-[850px] md:max-h-[850px] bg-brand-bg shadow-2xl relative flex flex-col justify-between overflow-hidden border-x border-neutral-800 md:border-4 md:border-neutral-800 md:rounded-[32px]">
         
         {/* Dynamic Main App Tab Content Area */}
         <div className="flex-1 flex flex-col overflow-hidden relative">
-          {activeTab === 'long' && (
+          <div className={activeTab === 'long' ? 'flex-1 flex flex-col overflow-hidden relative' : 'hidden'}>
             <LongVideoTab 
               profile={profile} 
               wallet={wallet} 
@@ -157,30 +179,32 @@ export default function App() {
               onUpdateProfile={handleUpdateProfile} 
               onOpenTopup={handleOpenTopup}
               onOpenAiScanner={() => setIsAiScannerOpen(true)}
+              onFullscreenChange={handleLongFullscreenChange}
             />
-          )}
+          </div>
 
-          {activeTab === 'short' && (
+          <div className={activeTab === 'short' ? 'flex-1 flex flex-col overflow-hidden relative' : 'hidden'}>
             <ShortVideoTab 
               profile={profile} 
               wallet={wallet} 
               onUpdateWallet={handleUpdateWallet} 
               onUpdateProfile={handleUpdateProfile} 
               onOpenTopup={handleOpenTopup}
+              onFullscreenChange={handleShortFullscreenChange}
             />
-          )}
+          </div>
 
-          {activeTab === 'games' && (
-            <GamesTab 
+          <div className={activeTab === 'games' ? 'flex-1 flex flex-col overflow-hidden relative' : 'hidden'}>
+            <LoufengTab 
               wallet={wallet} 
               profile={profile} 
               onUpdateWallet={handleUpdateWallet} 
               onUpdateProfile={handleUpdateProfile} 
               onOpenTopup={handleOpenTopup}
             />
-          )}
+          </div>
 
-          {activeTab === 'chess' && (
+          <div className={activeTab === 'chess' ? 'flex-1 flex flex-col overflow-hidden relative' : 'hidden'}>
             <ChessTab 
               wallet={wallet} 
               profile={profile} 
@@ -189,9 +213,9 @@ export default function App() {
               onOpenTopup={handleOpenTopup}
               onOpenCustomerService={() => setIsCustomerServiceOpen(true)}
             />
-          )}
+          </div>
 
-          {activeTab === 'profile' && (
+          <div className={activeTab === 'profile' ? 'flex-1 flex flex-col overflow-hidden relative' : 'hidden'}>
             <ProfileTab 
               profile={profile} 
               wallet={wallet} 
@@ -201,73 +225,75 @@ export default function App() {
               onOpenAiScanner={() => setIsAiScannerOpen(true)}
               onOpenCustomerService={() => setIsCustomerServiceOpen(true)}
             />
-          )}
+          </div>
         </div>
 
         {/* FIXED BOTTOM NAVIGATION BAR */}
-        <nav className="absolute bottom-0 inset-x-0 bg-[#161616]/95 backdrop-blur-md border-t border-neutral-800 py-2.5 px-3 flex items-center justify-around z-40 text-brand-gray">
-          
-          <button
-            id="nav-long-video"
-            onClick={() => setActiveTab('long')}
-            className={`flex flex-col items-center gap-1 py-1 px-3 transition-all relative ${activeTab === 'long' ? 'text-white font-bold' : 'hover:text-gray-200'}`}
-          >
-            <Film className={`w-5 h-5 ${activeTab === 'long' ? 'text-brand-purple scale-110' : ''} transition-transform`} />
-            <span className="text-[10px]">长视频</span>
-            {activeTab === 'long' && (
-              <span className="absolute bottom-0 w-4 h-0.5 bg-brand-purple rounded-full"></span>
-            )}
-          </button>
+        {!isAnyFullscreen && (
+          <nav className="absolute bottom-0 inset-x-0 bg-[#161616]/95 backdrop-blur-md border-t border-neutral-800 py-2.5 px-3 flex items-center justify-around z-40 text-brand-gray">
+            
+            <button
+              id="nav-long-video"
+              onClick={() => setActiveTab('long')}
+              className={`flex flex-col items-center gap-1 py-1 px-3 transition-all relative ${activeTab === 'long' ? 'text-white font-bold' : 'hover:text-gray-200'}`}
+            >
+              <Film className={`w-5 h-5 ${activeTab === 'long' ? 'text-brand-purple scale-110' : ''} transition-transform`} />
+              <span className="text-[10px]">长视频</span>
+              {activeTab === 'long' && (
+                <span className="absolute bottom-0 w-4 h-0.5 bg-brand-purple rounded-full"></span>
+              )}
+            </button>
 
-          <button
-            id="nav-short-video"
-            onClick={() => setActiveTab('short')}
-            className={`flex flex-col items-center gap-1 py-1 px-3 transition-all relative ${activeTab === 'short' ? 'text-white font-bold' : 'hover:text-gray-200'}`}
-          >
-            <PlayCircle className={`w-5 h-5 ${activeTab === 'short' ? 'text-brand-purple scale-110' : ''} transition-transform`} />
-            <span className="text-[10px]">短视频</span>
-            {activeTab === 'short' && (
-              <span className="absolute bottom-0 w-4 h-0.5 bg-brand-purple rounded-full"></span>
-            )}
-          </button>
+            <button
+              id="nav-short-video"
+              onClick={() => setActiveTab('short')}
+              className={`flex flex-col items-center gap-1 py-1 px-3 transition-all relative ${activeTab === 'short' ? 'text-white font-bold' : 'hover:text-gray-200'}`}
+            >
+              <PlayCircle className={`w-5 h-5 ${activeTab === 'short' ? 'text-brand-purple scale-110' : ''} transition-transform`} />
+              <span className="text-[10px]">短视频</span>
+              {activeTab === 'short' && (
+                <span className="absolute bottom-0 w-4 h-0.5 bg-brand-purple rounded-full"></span>
+              )}
+            </button>
 
-          <button
-            id="nav-games"
-            onClick={() => setActiveTab('games')}
-            className={`flex flex-col items-center gap-1 py-1 px-3 transition-all relative ${activeTab === 'games' ? 'text-white font-bold' : 'hover:text-gray-200'}`}
-          >
-            <BookOpen className={`w-5 h-5 ${activeTab === 'games' ? 'text-brand-purple scale-110' : ''} transition-transform`} />
-            <span className="text-[10px]">楼凤</span>
-            {activeTab === 'games' && (
-              <span className="absolute bottom-0 w-4 h-0.5 bg-brand-purple rounded-full"></span>
-            )}
-          </button>
+            <button
+              id="nav-games"
+              onClick={() => setActiveTab('games')}
+              className={`flex flex-col items-center gap-1 py-1 px-3 transition-all relative ${activeTab === 'games' ? 'text-white font-bold' : 'hover:text-gray-200'}`}
+            >
+              <Compass className={`w-5 h-5 ${activeTab === 'games' ? 'text-brand-purple scale-110' : ''} transition-transform`} />
+              <span className="text-[10px]">楼凤</span>
+              {activeTab === 'games' && (
+                <span className="absolute bottom-0 w-4 h-0.5 bg-brand-purple rounded-full"></span>
+              )}
+            </button>
 
-          <button
-            id="nav-chess"
-            onClick={() => setActiveTab('chess')}
-            className={`flex flex-col items-center gap-1 py-1 px-3 transition-all relative ${activeTab === 'chess' ? 'text-white font-bold' : 'hover:text-gray-200'}`}
-          >
-            <Globe className={`w-5 h-5 ${activeTab === 'chess' ? 'text-brand-purple scale-110' : ''} transition-transform`} />
-            <span className="text-[10px]">引流页</span>
-            {activeTab === 'chess' && (
-              <span className="absolute bottom-0 w-4 h-0.5 bg-brand-purple rounded-full"></span>
-            )}
-          </button>
+            <button
+              id="nav-chess"
+              onClick={() => setActiveTab('chess')}
+              className={`flex flex-col items-center gap-1 py-1 px-3 transition-all relative ${activeTab === 'chess' ? 'text-white font-bold' : 'hover:text-gray-200'}`}
+            >
+              <Gamepad2 className={`w-5 h-5 ${activeTab === 'chess' ? 'text-brand-purple scale-110' : ''} transition-transform`} />
+              <span className="text-[10px]">引流页</span>
+              {activeTab === 'chess' && (
+                <span className="absolute bottom-0 w-4 h-0.5 bg-brand-purple rounded-full"></span>
+              )}
+            </button>
 
-          <button
-            id="nav-profile"
-            onClick={() => setActiveTab('profile')}
-            className={`flex flex-col items-center gap-1 py-1 px-3 transition-all relative ${activeTab === 'profile' ? 'text-white font-bold' : 'hover:text-gray-200'}`}
-          >
-            <User className={`w-5 h-5 ${activeTab === 'profile' ? 'text-brand-purple scale-110' : ''} transition-transform`} />
-            <span className="text-[10px]">我的</span>
-            {activeTab === 'profile' && (
-              <span className="absolute bottom-0 w-4 h-0.5 bg-brand-purple rounded-full"></span>
-            )}
-          </button>
+            <button
+              id="nav-profile"
+              onClick={() => setActiveTab('profile')}
+              className={`flex flex-col items-center gap-1 py-1 px-3 transition-all relative ${activeTab === 'profile' ? 'text-white font-bold' : 'hover:text-gray-200'}`}
+            >
+              <User className={`w-5 h-5 ${activeTab === 'profile' ? 'text-brand-purple scale-110' : ''} transition-transform`} />
+              <span className="text-[10px]">我的</span>
+              {activeTab === 'profile' && (
+                <span className="absolute bottom-0 w-4 h-0.5 bg-brand-purple rounded-full"></span>
+              )}
+            </button>
 
-        </nav>
+          </nav>
+        )}
 
         {/* COMBINED MODAL TRANSACTION SYSTEM */}
         <TopUpModal 

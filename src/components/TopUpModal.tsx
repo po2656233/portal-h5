@@ -337,7 +337,7 @@ export default function TopUpModal({
           {tabType === 'transfer' && (
             <div className="space-y-5">
               <p className="text-xs text-gray-300 leading-relaxed">
-                部分游戏场馆与棋牌对决采用独立的<strong>“游戏钱包”</strong>计费，您需要将主钱包余额一键转换至游戏钱包方可参玩。
+                部分游戏场馆与某某对决采用独立的<strong>“游戏钱包”</strong>计费，您需要将主钱包余额一键转换至游戏钱包方可参玩。
               </p>
 
               <div className="p-4 rounded-xl bg-brand-card border border-neutral-800 space-y-4">
@@ -370,7 +370,7 @@ export default function TopUpModal({
 
               <div className="flex items-center gap-2 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-[11px] text-amber-300">
                 <span>⚡</span>
-                <span>棋牌离开房间后，副钱包金额会自动保存，支持随时一键回转至主钱包！</span>
+                <span>某某离开房间后，副钱包金额会自动保存，支持随时一键回转至主钱包！</span>
               </div>
             </div>
           )}

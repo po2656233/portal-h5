@@ -13,6 +13,7 @@ interface LongVideoTabProps {
   onUpdateProfile: (profile: Partial<UserProfile>) => void;
   onOpenTopup: (type: 'vip' | 'coin') => void;
   onOpenAiScanner: () => void;
+  onFullscreenChange?: (isFullscreen: boolean) => void;
 }
 
 export default function LongVideoTab({
@@ -21,10 +22,11 @@ export default function LongVideoTab({
   onUpdateWallet,
   onUpdateProfile,
   onOpenTopup,
-  onOpenAiScanner
+  onOpenAiScanner,
+  onFullscreenChange
 }: LongVideoTabProps) {
   // Navigation tabs at the top (Image 4)
-  const topTabs = ['某某头条', '某某原创', '自拍偷拍', '制服诱惑', '清纯少女', '无码视频'];
+  const topTabs = ['某某头条', '某某原创', '条目一', '条目二', '条目三', '条目四', '条目五', '条目六', '条目七', '条目八', '条目九', '条目十', '制服诱惑', '清纯少女', '无码视频', '自拍偷拍'];
   const [activeTopTab, setActiveTopTab] = useState<string>('某某头条');
   
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -89,6 +91,12 @@ export default function LongVideoTab({
   const [hoveredVideoId, setHoveredVideoId] = useState<string | null>(null);
   const [showBackToTop, setShowBackToTop] = useState<boolean>(false);
   const [showPlayOverlay, setShowPlayOverlay] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (onFullscreenChange) {
+      onFullscreenChange(showPlayOverlay);
+    }
+  }, [showPlayOverlay, onFullscreenChange]);
   const [playerLoading, setPlayerLoading] = useState<boolean>(false);
 
   // Perfecting details page features states
@@ -500,7 +508,7 @@ export default function LongVideoTab({
       <div className="p-4 pb-2 bg-brand-bg flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="text-2xl font-black bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent">某某视频</span>
-          <span className="text-[10px] uppercase font-mono tracking-wider text-gray-500 border border-neutral-800 px-1.5 rounded">Banana Studio</span>
+          <span className="text-[10px] uppercase font-mono tracking-wider text-gray-500 border border-neutral-800 px-1.5 rounded">Xxxx Studio</span>
         </div>
         <div className="flex items-center gap-2.5">
           <button 
@@ -683,7 +691,7 @@ export default function LongVideoTab({
           {/* Ad Slot 1 (After 2 items) */}
           <div 
             onClick={() => {
-              alert('🎰 官方直营 太阳城集团 PG电子大放水！已为您模拟加赠 ¥888 游戏金币，并正在跳转至棋牌游戏大厅...');
+              alert('🎰 官方直营 太阳城集团 PG电子大放水！已为您模拟加赠 ¥888 游戏金币，并正在跳转至某某游戏大厅...');
               onUpdateWallet({ goldCoins: wallet.goldCoins + 888 });
               // Real jump/navigation!
               document.getElementById('nav-chess')?.click();

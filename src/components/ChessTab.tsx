@@ -302,7 +302,7 @@ export default function ChessTab({
               <h1 className="text-xl font-black text-yellow-300 tracking-tight flex items-center gap-1 font-sans">
                 某某视频
               </h1>
-              <p className="text-[9px] text-white/90 uppercase font-mono tracking-wider">Banana Studio</p>
+              <p className="text-[9px] text-white/90 uppercase font-mono tracking-wider">Xxxx Studio</p>
             </div>
           </div>
 
