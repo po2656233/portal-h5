@@ -3,7 +3,8 @@ import { UserProfile, UserWallet } from '../types';
 import { 
   User, Award, Ticket, Star, Coins, Gift, Compass, 
   MessageSquare, History, ShoppingBag, CheckSquare, 
-  Settings, HelpCircle, LogOut, ChevronRight, Sparkles 
+  Settings, HelpCircle, LogOut, ChevronRight, Sparkles,
+  Mail, Smartphone, Lock
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -28,31 +29,177 @@ export default function ProfileTab({
 }: ProfileTabProps) {
   const [usernameInput, setUsernameInput] = useState<string>('');
   const [showLoginPanel, setShowLoginPanel] = useState<boolean>(false);
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [authTab, setAuthTab] = useState<'account' | 'email' | 'phone'>('account');
+  const [emailInput, setEmailInput] = useState<string>('');
+  const [phoneInput, setPhoneInput] = useState<string>('');
+  const [passwordInput, setPasswordInput] = useState<string>('');
+  const [confirmPasswordInput, setConfirmPasswordInput] = useState<string>('');
+  const [codeInput, setCodeInput] = useState<string>('');
+  const [inviteCodeInput, setInviteCodeInput] = useState<string>('');
+  const [codeCountdown, setCodeCountdown] = useState<number>(0);
+
   const [hasCheckedIn, setHasCheckedIn] = useState<boolean>(false);
   const [activeProfileModal, setActiveProfileModal] = useState<'history' | 'favorites' | 'purchases' | 'tasks' | 'settings' | 'recommendations' | 'rewards' | null>(null);
   const [showDatingMatches, setShowDatingMatches] = useState<boolean>(false);
   const [activeChattingGirl, setActiveChattingGirl] = useState<any | null>(null);
   const [chatMessages, setChatMessages] = useState<string[]>([]);
   const [userInputMessage, setUserInputMessage] = useState<string>('');
+  const [apiDomain, setApiDomain] = useState<string>(() => localStorage.getItem('banana_api_domain') || '');
+  const [apiReferer, setApiReferer] = useState<string>(() => localStorage.getItem('banana_api_referer') || '');
 
-  // Authentication Flow
-  const handleLoginSubmit = (e: React.FormEvent) => {
+  // Countdown timer for SMS / Email codes
+  React.useEffect(() => {
+    let timer: any;
+    if (codeCountdown > 0) {
+      timer = setTimeout(() => {
+        setCodeCountdown(prev => prev - 1);
+      }, 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [codeCountdown]);
+
+  const handleSendCode = () => {
+    if (authTab === 'email') {
+      if (!emailInput.trim() || !emailInput.includes('@')) {
+        window.customAlert('⚠️ 输入有误', '请输入有效的电子邮箱地址！');
+        return;
+      }
+      setCodeCountdown(60);
+      window.customAlert('📩 邮箱验证码已模拟发送', `我们已向您的邮箱 [${emailInput}] 发送了验证激活码：8888\n\n请在输入框中填写「8888」即可完成验证。`);
+    } else if (authTab === 'phone') {
+      if (!phoneInput.trim() || phoneInput.trim().length < 11) {
+        window.customAlert('⚠️ 输入有误', '请输入有效的11位手机号码！');
+        return;
+      }
+      setCodeCountdown(60);
+      window.customAlert('📲 短信验证码已模拟发送', `验证短信已发送至您的手机号 [${phoneInput}]，验证激活码为：6666\n\n请在输入框中填写「6666」即可完成极速注册。`);
+    }
+  };
+
+  // Unified Authentication Flow for Registration and Login
+  const handleAuthSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const name = usernameInput.trim() || '香蕉老司机_888';
-    onUpdateProfile({
-      isLoggedIn: true,
-      username: name,
-      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
-      vipDaysLeft: 3,
-      vipExpiry: '2026-07-19',
-      longVideoTickets: 8,
-      shortVideoTickets: 15
-    });
-    setShowLoginPanel(false);
+    
+    if (authMode === 'register') {
+      if (authTab === 'account') {
+        if (!usernameInput.trim()) {
+          window.customAlert('⚠️ 校验失败', '请输入用于注册的账户用户名！');
+          return;
+        }
+        if (passwordInput.length < 6) {
+          window.customAlert('⚠️ 校验失败', '为了您的账户安全，密码长度不能少于 6 位！');
+          return;
+        }
+        if (passwordInput !== confirmPasswordInput) {
+          window.customAlert('⚠️ 校验失败', '两次输入的新密码不匹配，请重新确认！');
+          return;
+        }
+      } else if (authTab === 'email') {
+        if (!emailInput.trim() || !emailInput.includes('@')) {
+          window.customAlert('⚠️ 校验失败', '请输入正确的电子邮箱地址！');
+          return;
+        }
+        if (passwordInput.length < 6) {
+          window.customAlert('⚠️ 校验失败', '密码长度不能少于 6 位！');
+          return;
+        }
+        if (codeInput !== '8888') {
+          window.customAlert('⚠️ 校验失败', '邮箱验证激活码输入有误！极速模拟验证码为: 8888');
+          return;
+        }
+      } else if (authTab === 'phone') {
+        if (!phoneInput.trim() || phoneInput.trim().length < 11) {
+          window.customAlert('⚠️ 校验失败', '请输入合法的手机号码！');
+          return;
+        }
+        if (passwordInput.length < 6) {
+          window.customAlert('⚠️ 校验失败', '密码长度不能少于 6 位！');
+          return;
+        }
+        if (codeInput !== '6666') {
+          window.customAlert('⚠️ 校验失败', '短信验证激活码输入有误！极速模拟验证码为: 6666');
+          return;
+        }
+      }
+
+      const finalUsername = authTab === 'account' 
+        ? usernameInput.trim() 
+        : authTab === 'email' 
+          ? emailInput.split('@')[0] + '_vip' 
+          : '手机会员_' + phoneInput.slice(-4);
+
+      onUpdateProfile({
+        isLoggedIn: true,
+        username: finalUsername,
+        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
+        vipDaysLeft: 3,
+        vipExpiry: '2026-07-21',
+        longVideoTickets: 8,
+        shortVideoTickets: 15
+      });
+      
+      window.customRewardAlert(
+        '🎉 极速注册并登录成功',
+        `恭喜老司机！您的专属「${authTab === 'account' ? '账号' : authTab === 'email' ? '邮箱' : '手机'}」已成功注册并登录。\n系统已为您加赠 3 天 VIP 体验权益！`,
+        { coins: 30 }
+      );
+      setShowLoginPanel(false);
+
+    } else {
+      // Login Mode
+      if (authTab === 'account') {
+        if (!usernameInput.trim()) {
+          window.customAlert('⚠️ 校验失败', '请输入登录账号！');
+          return;
+        }
+        if (!passwordInput) {
+          window.customAlert('⚠️ 校验失败', '请输入登录密码！');
+          return;
+        }
+      } else if (authTab === 'email') {
+        if (!emailInput.trim() || !emailInput.includes('@')) {
+          window.customAlert('⚠️ 校验失败', '请输入正确的邮箱账号！');
+          return;
+        }
+        if (!passwordInput) {
+          window.customAlert('⚠️ 校验失败', '请输入登录密码！');
+          return;
+        }
+      } else if (authTab === 'phone') {
+        if (!phoneInput.trim() || phoneInput.trim().length < 11) {
+          window.customAlert('⚠️ 校验失败', '请输入正确的手机账号！');
+          return;
+        }
+        if (!passwordInput) {
+          window.customAlert('⚠️ 校验失败', '请输入登录密码！');
+          return;
+        }
+      }
+
+      const finalUsername = authTab === 'account' 
+        ? usernameInput.trim() 
+        : authTab === 'email' 
+          ? emailInput.split('@')[0] + '_vip' 
+          : '手机会员_' + phoneInput.slice(-4);
+
+      onUpdateProfile({
+        isLoggedIn: true,
+        username: finalUsername,
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
+        vipDaysLeft: 35,
+        vipExpiry: '2026-08-20',
+        longVideoTickets: 12,
+        shortVideoTickets: 28
+      });
+
+      window.customAlert('🔑 登录成功', `欢迎老司机 [${finalUsername}] 重返某某社区！您的历史缓存已自动同步。`);
+      setShowLoginPanel(false);
+    }
   };
 
   const handleLogout = () => {
-    if (confirm('🚪 确定要退出当前账号吗？')) {
+    window.customConfirm('🚪 确定退出账号吗？', '确定要退出当前账号吗？您的资产和观影数将会重置为未登录状态。', () => {
       onUpdateProfile({
         isLoggedIn: false,
         username: '未登录',
@@ -68,14 +215,14 @@ export default function ProfileTab({
         goldCoins: 0,
         goldBeans: 0
       });
-      alert('已成功登出。资产及观影数已自动重置。');
-    }
+      window.customAlert('🚪 登出成功', '您已成功退出当前账号。');
+    });
   };
 
   // Daily Checkin Interaction
   const handleDailyCheckIn = () => {
     if (hasCheckedIn) {
-      alert('📆 您今天已经签到过了，明天再来哦！');
+      window.customAlert('📆 已经签到', '您今天已经签到过了，明天再来哦！');
       return;
     }
     setHasCheckedIn(true);
@@ -86,57 +233,266 @@ export default function ProfileTab({
     onUpdateWallet({
       goldCoins: wallet.goldCoins + 10
     });
-    alert('🎉 每日签到成功！已向您的钱包赠送：\n\n+5张 长视频电影券\n+15张 短视频观影券\n+10枚 游戏金币！');
+    
+    window.customRewardAlert(
+      '🎉 每日签到成功',
+      '极速签到成功！恭喜您获得以下每日福利奖励，奖励已直接发放到您的资产账户中：',
+      { coins: 10, tickets: 15, movieTickets: 5 }
+    );
   };
 
   return (
     <div className="flex-1 overflow-y-auto no-scrollbar pb-28 text-white relative">
       
-      {/* Dynamic Login Panel Overlay inside widget */}
+      {/* Dynamic Login & Registration Panel Overlay */}
       {showLoginPanel && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm">
-          <div className="w-full max-w-sm rounded-2xl bg-brand-bg border border-brand-purple/30 p-6 text-white space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
+          <div className="w-full max-w-sm rounded-3xl bg-brand-bg border border-brand-purple/20 p-5 text-white space-y-4 shadow-2xl relative">
+            
+            {/* Header Identity */}
             <div className="text-center">
-              <span className="text-3xl">🍌</span>
-              <h3 className="text-base font-bold text-brand-gold mt-2">香蕉社区极速注册/登录</h3>
-              <p className="text-[10px] text-gray-400 mt-0.5">免验证码，1秒完成创建，畅游成人 world</p>
+              <div className="w-12 h-12 bg-brand-purple/15 rounded-full flex items-center justify-center mx-auto mb-2 border border-brand-purple/25 animate-pulse">
+                <span className="text-2xl">🍌</span>
+              </div>
+              <h3 className="text-sm font-black text-brand-gold">某某成人社区</h3>
+              <p className="text-[9px] text-gray-400 mt-1">老司机专属的高清视频、漫画与精品游戏大厅</p>
             </div>
 
-            <form onSubmit={handleLoginSubmit} className="space-y-3 pt-2">
+            {/* MAIN AUTHENTICATION MODE TABS (LOGIN VS REGISTER) */}
+            <div className="grid grid-cols-2 p-1 bg-brand-card rounded-xl border border-neutral-800">
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthMode('login');
+                  setPasswordInput('');
+                  setConfirmPasswordInput('');
+                }}
+                className={`py-1.5 text-[10px] font-black rounded-lg transition-all ${
+                  authMode === 'login' 
+                    ? 'bg-brand-purple text-white shadow-md' 
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                账号登录
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthMode('register');
+                  setPasswordInput('');
+                  setConfirmPasswordInput('');
+                }}
+                className={`py-1.5 text-[10px] font-black rounded-lg transition-all ${
+                  authMode === 'register' 
+                    ? 'bg-brand-purple text-white shadow-md' 
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                极速注册
+              </button>
+            </div>
+
+            {/* THREE DETAILED AUTH CHANNELS SUB-TABS */}
+            <div className="flex items-center justify-between gap-1 p-1 bg-[#1a1a1a] rounded-xl border border-neutral-800/80">
+              <button
+                type="button"
+                onClick={() => setAuthTab('account')}
+                className={`flex-1 py-1 px-2 flex items-center justify-center gap-1 text-[9px] font-bold rounded-lg transition-all ${
+                  authTab === 'account' ? 'bg-neutral-800 text-brand-gold' : 'text-gray-400 hover:text-gray-200'
+                }`}
+              >
+                <User className="w-3 h-3" />
+                <span>账号</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setAuthTab('email')}
+                className={`flex-1 py-1 px-2 flex items-center justify-center gap-1 text-[9px] font-bold rounded-lg transition-all ${
+                  authTab === 'email' ? 'bg-neutral-800 text-brand-gold' : 'text-gray-400 hover:text-gray-200'
+                }`}
+              >
+                <Mail className="w-3 h-3" />
+                <span>邮箱</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setAuthTab('phone')}
+                className={`flex-1 py-1 px-2 flex items-center justify-center gap-1 text-[9px] font-bold rounded-lg transition-all ${
+                  authTab === 'phone' ? 'bg-neutral-800 text-brand-gold' : 'text-gray-400 hover:text-gray-200'
+                }`}
+              >
+                <Smartphone className="w-3 h-3" />
+                <span>手机号</span>
+              </button>
+            </div>
+
+            {/* FORM CONTAINER */}
+            <form onSubmit={handleAuthSubmit} className="space-y-3.5 pt-1">
+              
+              {/* Username Input (Only when using Account channel) */}
+              {authTab === 'account' && (
+                <div className="space-y-1">
+                  <label className="text-[9px] text-gray-400 flex items-center gap-1">
+                    <User className="w-2.5 h-2.5 text-brand-purple" />
+                    <span>自定义登录用户名 / ID</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    placeholder="请输入 4-16 位字母、数字或中文昵称" 
+                    value={usernameInput}
+                    onChange={(e) => setUsernameInput(e.target.value)}
+                    required
+                    className="w-full px-3.5 py-2 rounded-xl bg-[#141414] border border-neutral-800 focus:border-brand-purple focus:outline-none text-xs text-white placeholder:text-gray-600"
+                  />
+                </div>
+              )}
+
+              {/* Email Input (Only when using Email channel) */}
+              {authTab === 'email' && (
+                <div className="space-y-1">
+                  <label className="text-[9px] text-gray-400 flex items-center gap-1">
+                    <Mail className="w-2.5 h-2.5 text-brand-purple" />
+                    <span>电子邮箱地址</span>
+                  </label>
+                  <input 
+                    type="email" 
+                    placeholder="请输入有效的邮箱，例如 name@example.com" 
+                    value={emailInput}
+                    onChange={(e) => setEmailInput(e.target.value)}
+                    required
+                    className="w-full px-3.5 py-2 rounded-xl bg-[#141414] border border-neutral-800 focus:border-brand-purple focus:outline-none text-xs text-white placeholder:text-gray-600"
+                  />
+                </div>
+              )}
+
+              {/* Phone Input (Only when using Phone channel) */}
+              {authTab === 'phone' && (
+                <div className="space-y-1">
+                  <label className="text-[9px] text-gray-400 flex items-center gap-1">
+                    <Smartphone className="w-2.5 h-2.5 text-brand-purple" />
+                    <span>手机号码 (国内/国际)</span>
+                  </label>
+                  <div className="flex gap-1.5">
+                    <span className="bg-[#141414] border border-neutral-800 text-xs px-2.5 py-2 rounded-xl text-brand-gold font-bold flex items-center justify-center">+86</span>
+                    <input 
+                      type="tel" 
+                      placeholder="请填写11位手机号码" 
+                      value={phoneInput}
+                      onChange={(e) => setPhoneInput(e.target.value)}
+                      required
+                      className="flex-1 px-3.5 py-2 rounded-xl bg-[#141414] border border-neutral-800 focus:border-brand-purple focus:outline-none text-xs text-white placeholder:text-gray-600"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Password Input (Required for all channels) */}
               <div className="space-y-1">
-                <label className="text-xs text-gray-400">自定个性昵称</label>
+                <label className="text-[9px] text-gray-400 flex items-center gap-1">
+                  <Lock className="w-2.5 h-2.5 text-brand-purple" />
+                  <span>账户安全密码</span>
+                </label>
                 <input 
-                  type="text" 
-                  placeholder="请输入昵称" 
-                  value={usernameInput}
-                  onChange={(e) => setUsernameInput(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-brand-card border border-neutral-800 focus:border-brand-purple focus:outline-none text-sm text-white"
+                  type="password" 
+                  placeholder="请输入您的安全访问密码" 
+                  value={passwordInput}
+                  onChange={(e) => setPasswordInput(e.target.value)}
+                  required
+                  className="w-full px-3.5 py-2 rounded-xl bg-[#141414] border border-neutral-800 focus:border-brand-purple focus:outline-none text-xs text-white placeholder:text-gray-600"
                 />
               </div>
 
-              <div className="space-y-1">
-                <label className="text-xs text-gray-400">邀请码 (可选)</label>
-                <input 
-                  type="text" 
-                  placeholder="填写INVITE666可领福利" 
-                  className="w-full px-4 py-2.5 rounded-xl bg-brand-card border border-neutral-800 text-sm text-white focus:outline-none"
-                />
-              </div>
+              {/* Repeat Password (Only in Registration Mode) */}
+              {authMode === 'register' && (
+                <div className="space-y-1">
+                  <label className="text-[9px] text-gray-400 flex items-center gap-1">
+                    <CheckSquare className="w-2.5 h-2.5 text-brand-purple" />
+                    <span>确认安全密码</span>
+                  </label>
+                  <input 
+                    type="password" 
+                    placeholder="请再次确认并输入密码" 
+                    value={confirmPasswordInput}
+                    onChange={(e) => setConfirmPasswordInput(e.target.value)}
+                    required
+                    className="w-full px-3.5 py-2 rounded-xl bg-[#141414] border border-neutral-800 focus:border-brand-purple focus:outline-none text-xs text-white placeholder:text-gray-600"
+                  />
+                </div>
+              )}
 
+              {/* Verification Code field (Required for Email/Phone registration or login if needed) */}
+              {authMode === 'register' && (authTab === 'email' || authTab === 'phone') && (
+                <div className="space-y-1">
+                  <label className="text-[9px] text-gray-400">输入收到的激活验证码</label>
+                  <div className="flex gap-2">
+                    <input 
+                      type="text" 
+                      placeholder="输入4位激活码" 
+                      value={codeInput}
+                      onChange={(e) => setCodeInput(e.target.value)}
+                      required
+                      className="flex-1 px-3.5 py-2 rounded-xl bg-[#141414] border border-neutral-800 focus:border-brand-purple focus:outline-none text-xs text-white placeholder:text-gray-600 text-center font-bold tracking-widest"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleSendCode}
+                      disabled={codeCountdown > 0}
+                      className="px-3.5 py-2 bg-neutral-800 hover:bg-neutral-750 text-brand-purple hover:text-brand-purple/90 disabled:text-gray-500 rounded-xl border border-neutral-800 text-[10px] font-bold shrink-0 transition-all"
+                    >
+                      {codeCountdown > 0 ? `${codeCountdown}s 后重试` : '获取验证码'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Invitation Code (Optional for Register mode) */}
+              {authMode === 'register' && (
+                <div className="space-y-1">
+                  <label className="text-[9px] text-gray-400 flex items-center gap-1">
+                    <Sparkles className="w-2.5 h-2.5 text-brand-gold animate-spin-slow" />
+                    <span>福利邀请码 (选填)</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    placeholder="输入 BANANA66 可额外获赠15天VIP" 
+                    value={inviteCodeInput}
+                    onChange={(e) => setInviteCodeInput(e.target.value)}
+                    className="w-full px-3.5 py-2 rounded-xl bg-[#141414] border border-neutral-800 text-xs text-white focus:outline-none placeholder:text-gray-600 text-center tracking-wider"
+                  />
+                </div>
+              )}
+
+              {/* Submitting Button */}
               <button 
                 type="submit"
-                className="w-full py-3 rounded-xl font-bold bg-brand-gradient text-white hover:opacity-90 transition-all text-xs"
+                className="w-full py-2.5 rounded-xl font-black bg-brand-gradient text-white hover:opacity-95 transition-all text-xs shadow-lg shadow-brand-purple/25 flex items-center justify-center gap-1.5 mt-4"
               >
-                立即注册并登录
+                <span>{authMode === 'login' ? '🔑 立即登录账号' : '🚀 极速注册并激活权益'}</span>
               </button>
             </form>
-            
-            <button 
-              onClick={() => setShowLoginPanel(false)}
-              className="w-full text-center text-xs text-gray-400 hover:text-white underline mt-1"
-            >
-              取消
-            </button>
+
+            {/* Footer Action */}
+            <div className="flex items-center justify-between pt-1 border-t border-neutral-800/60">
+              <button 
+                type="button"
+                onClick={() => {
+                  setAuthMode(authMode === 'login' ? 'register' : 'login');
+                  setPasswordInput('');
+                  setConfirmPasswordInput('');
+                }}
+                className="text-[9px] text-brand-gold hover:underline"
+              >
+                {authMode === 'login' ? '没有账号？一键极速注册' : '已有账号？返回极速登录'}
+              </button>
+
+              <button 
+                type="button"
+                onClick={() => setShowLoginPanel(false)}
+                className="text-[9px] text-gray-400 hover:text-white"
+              >
+                暂不登录
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -201,7 +557,7 @@ export default function ProfileTab({
             <div className="flex items-center gap-2">
               <Award className="w-5 h-5 text-brand-gold" />
               <div>
-                <h4 className="text-xs font-black text-brand-gold">香蕉观影尊享俱乐部</h4>
+                <h4 className="text-xs font-black text-brand-gold">某某观影尊享俱乐部</h4>
                 <p className="text-[9px] text-gray-400">
                   会员到期：<span className="text-brand-gold font-bold">{profile.vipExpiry}</span>
                   {` (剩余 ${profile.isLoggedIn ? profile.vipDaysLeft : 0} 天)`}
@@ -329,8 +685,21 @@ export default function ProfileTab({
             { label: '任务中心', icon: <Compass className="w-5 h-5 text-teal-400" />, action: () => setActiveProfileModal('tasks') },
             { label: '精彩推荐', icon: <Sparkles className="w-5 h-5 text-purple-400" />, action: () => setActiveProfileModal('recommendations') },
             { label: '意见反馈', icon: <HelpCircle className="w-5 h-5 text-sky-400" />, action: () => {
-              const q = prompt('✍️ 请写下您对香蕉社区的宝贵意见或遇到的Bug（我们会第一时间在后台收集并派送代金券）：');
-              if (q) alert('🎉 感谢您的意见！客服团队正在核对，已自动向您账户派送5元体验金。');
+              window.customPrompt(
+                '✍️ 意见与建议反馈',
+                '请写下您对某某社区的宝贵意见或遇到的Bug（我们会第一时间在后台收集并派送 5 元体验金奖励）：',
+                (feedback) => {
+                  if (feedback && feedback.trim()) {
+                    onUpdateWallet({ mainBalance: wallet.mainBalance + 5 });
+                    window.customRewardAlert(
+                      '🎉 反馈奖励已到账',
+                      '感谢您的宝贵意见！客服团队已收到您的反馈并为您自动派送 5 元体验金（已存入您的主钱包）。',
+                      { coins: 50 } // Give some bonus coins too as a premium visual!
+                    );
+                  }
+                },
+                '请在这里输入您的反馈内容...'
+              );
             }},
             { label: '奖励记录', icon: <Gift className="w-5 h-5 text-amber-500" />, action: () => setActiveProfileModal('rewards') }
           ].map((srv, idx) => (
@@ -386,7 +755,7 @@ export default function ProfileTab({
                     try {
                       const hist = localStorage.getItem('banana_history');
                       const items = hist ? JSON.parse(hist) : [
-                        { id: 'h1', title: '【香蕉头条】全网最新制服诱惑狂欢特辑', tag: '最新', type: '长视频' },
+                        { id: 'h1', title: '【某某头条】全网最新制服诱惑狂欢特辑', tag: '最新', type: '长视频' },
                         { id: 'h2', title: '清纯少女白领诱惑：丝袜高跟初体验', tag: '热门', type: '长视频' }
                       ];
                       return (
@@ -489,7 +858,7 @@ export default function ProfileTab({
                       }
                     }},
                     { desc: '✈️ 同城寻欢匹配分享', bonus: '+500 模拟金币', status: '去匹配', action: () => {
-                      navigator.clipboard.writeText(`香蕉社区同城寻欢定位已开启！我的邀请码为：${profile.inviteCode}`);
+                      navigator.clipboard.writeText(`某某社区同城寻欢定位已开启！我的邀请码为：${profile.inviteCode}`);
                       onUpdateWallet({ gameBalance: wallet.gameBalance + 500 });
                       alert('🔗 分享文案已成功复制！额外赠送您 ￥500.00 棋牌模拟备用金！');
                     }}
@@ -517,13 +886,56 @@ export default function ProfileTab({
 
               {/* E. SYSTEM SETTINGS (系统设置) */}
               {activeProfileModal === 'settings' && (
-                <div className="space-y-3 text-xs text-gray-300">
+                <div className="space-y-3.5 text-xs text-gray-300">
+                  {/* Connection Settings */}
+                  <div className="p-3.5 bg-brand-bg rounded-xl border border-neutral-800 space-y-3">
+                    <h4 className="text-[10px] font-black text-brand-gold uppercase tracking-wider mb-2 flex items-center gap-1">
+                      <span>🌐</span>
+                      <span>后端服务配置 (ThinkPHP5)</span>
+                    </h4>
+                    
+                    <div className="space-y-1">
+                      <label className="text-[9px] text-gray-400">服务端 API 域名</label>
+                      <input 
+                        type="text" 
+                        value={apiDomain}
+                        onChange={(e) => setApiDomain(e.target.value)}
+                        placeholder="例如: https://api.banana.com"
+                        className="w-full bg-neutral-900 border border-neutral-800 rounded-lg p-2 text-[10px] text-white focus:outline-none focus:border-brand-purple"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[9px] text-gray-400">Referer 请求头 (如需要防盗链绕过)</label>
+                      <input 
+                        type="text" 
+                        value={apiReferer}
+                        onChange={(e) => setApiReferer(e.target.value)}
+                        placeholder="例如: https://h5.banana.com"
+                        className="w-full bg-neutral-900 border border-neutral-800 rounded-lg p-2 text-[10px] text-white focus:outline-none focus:border-brand-purple"
+                      />
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        localStorage.setItem('banana_api_domain', apiDomain.trim());
+                        localStorage.setItem('banana_api_referer', apiReferer.trim());
+                        alert('🎉 服务端配置已成功保存！系统将自动切换为使用新配置获取真实数据。\n如果域名为空，系统则会平滑无缝地使用精美的本地模拟环境。');
+                        window.location.reload(); // Reload to apply global API domain changes easily
+                      }}
+                      className="w-full py-2 bg-brand-purple hover:bg-brand-purple/95 font-bold text-[10px] text-white rounded-lg shadow transition-all mt-2"
+                    >
+                      保存并应用配置
+                    </button>
+                  </div>
+
                   <div className="p-3 bg-brand-bg rounded-xl border border-neutral-800 space-y-3">
+                    <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-1">常规客户端设置</h4>
                     <div className="flex justify-between items-center">
                       <span>播放线路选择</span>
                       <select className="bg-brand-card border border-neutral-800 text-[10px] rounded p-1 text-brand-gold focus:outline-none">
-                        <option>香蕉CDN专线 1 (极速)</option>
-                        <option>香蕉CDN专线 2 (超清)</option>
+                        <option>某某CDN专线 1 (极速)</option>
+                        <option>某某CDN专线 2 (超清)</option>
                         <option>海外中转专线 3 (抗封锁)</option>
                       </select>
                     </div>
@@ -682,7 +1094,7 @@ export default function ProfileTab({
                           <button 
                             onClick={() => {
                               navigator.clipboard.writeText(girl.wechat);
-                              alert(`💚 已成功复制【${girl.name}】的微信号/QQ号：${girl.wechat}！\n\n快去添加好友约见吧，验证请写“香蕉老司机”。`);
+                              alert(`💚 已成功复制【${girl.name}】的微信号/QQ号：${girl.wechat}！\n\n快去添加好友约见吧，验证请写“某某老司机”。`);
                             }}
                             className="py-1 px-2.5 rounded bg-neutral-800 hover:bg-neutral-700 text-gray-300 font-bold text-[9px]"
                           >
@@ -741,7 +1153,7 @@ export default function ProfileTab({
                       setTimeout(() => {
                         const answers = [
                           "🍒 哇，哥哥说话真幽默！我今天刚好穿了你喜欢的短裙，要不咱们加个微信，你把地址发我好吗？",
-                          "🧸 嗯嗯，我平时也超喜欢看电影的！特别是香蕉视频上的原创大片。今晚我去找你，咱们一块看好不好？",
+                          "🧸 嗯嗯，我平时也超喜欢看电影的！特别是某某视频上的原创大片。今晚我去找你，咱们一块看好不好？",
                           "🥂 哥哥，我已经洗好澡在酒店等你了哦。加微信聊好吗，我的微信号是：" + activeChattingGirl.wechat,
                         ];
                         const randomAns = answers[Math.floor(Math.random() * answers.length)];

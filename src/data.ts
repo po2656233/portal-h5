@@ -1,7 +1,7 @@
 import { VideoItem, ShortVideoItem, GameItem, ChessGameItem, WinnerAnnouncement } from './types';
 
 export const LONG_VIDEO_CATEGORIES = [
-  '香蕉头条',
+  '某某头条',
   '自拍交流',
   '制服诱惑',
   '清纯校花',

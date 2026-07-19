@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { UserProfile, UserWallet } from './types';
 import LongVideoTab from './components/LongVideoTab';
 import ShortVideoTab from './components/ShortVideoTab';
@@ -8,19 +8,22 @@ import ProfileTab from './components/ProfileTab';
 import TopUpModal from './components/TopUpModal';
 import AiUnclotheModal from './components/AiUnclotheModal';
 import CustomerServiceModal from './components/CustomerServiceModal';
-import { Film, PlayCircle, Gamepad2, Layers, User } from 'lucide-react';
+import { Film, PlayCircle, BookOpen, Globe,Gamepad2, User, Gift, Coins, Ticket, Sparkles, AlertCircle, HelpCircle, Info, Star } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 export default function App() {
   // Global State for the Demo User Profile & Wallet
   const [profile, setProfile] = useState<UserProfile>({
+    id: 'user_9527',
     isLoggedIn: true,
-    username: '香蕉老司机_666',
+    username: '某某老司机_666',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
     vipExpiry: '2026-08-20',
     vipDaysLeft: 35,
     longVideoTickets: 12,
     shortVideoTickets: 28,
-    inviteCode: 'BANANA66'
+    inviteCode: 'BANANA66',
+    movieTickets: 3
   });
 
   const [wallet, setWallet] = useState<UserWallet>({
@@ -37,6 +40,92 @@ export default function App() {
   const [topUpTabType, setTopUpTabType] = useState<'vip' | 'coin' | 'redeem' | 'transfer'>('vip');
   const [isAiScannerOpen, setIsAiScannerOpen] = useState<boolean>(false);
   const [isCustomerServiceOpen, setIsCustomerServiceOpen] = useState<boolean>(false);
+
+  // Custom visual internal dialog state
+  const [dialog, setDialog] = useState<{
+    isOpen: boolean;
+    type: 'alert' | 'confirm' | 'prompt' | 'reward';
+    title: string;
+    message: string;
+    placeholder?: string;
+    promptValue?: string;
+    onConfirm?: (val?: string) => void;
+    onCancel?: () => void;
+    rewards?: { coins?: number; vipDays?: number; tickets?: number; movieTickets?: number };
+  } | null>(null);
+
+  // Bind custom dialog helpers to window
+  useEffect(() => {
+    window.customAlert = (title, message) => {
+      setDialog({
+        isOpen: true,
+        type: 'alert',
+        title,
+        message
+      });
+    };
+
+    window.customConfirm = (title, message, onConfirm) => {
+      setDialog({
+        isOpen: true,
+        type: 'confirm',
+        title,
+        message,
+        onConfirm
+      });
+    };
+
+    window.customPrompt = (title, message, onConfirm, placeholder) => {
+      setDialog({
+        isOpen: true,
+        type: 'prompt',
+        title,
+        message,
+        placeholder: placeholder || '请输入内容...',
+        promptValue: '',
+        onConfirm
+      });
+    };
+
+    window.customRewardAlert = (title, message, rewards) => {
+      setDialog({
+        isOpen: true,
+        type: 'reward',
+        title,
+        message,
+        rewards
+      });
+    };
+
+    // Global override of standard window.alert!
+    window.alert = (message) => {
+      // Attempt to extract title/rewards indicators
+      let title = '🍌 某某社区通知';
+      if (message.includes('🎉') || message.includes('💰') || message.includes('🔥') || message.includes('🎰') || message.includes('👑')) {
+        title = '🎉 恭喜获得福利';
+      } else if (message.includes('⚠️') || message.includes('❌') || message.includes('🔒')) {
+        title = '⚠️ 系统提示';
+      } else if (message.includes('🧹') || message.includes('⚙️')) {
+        title = '⚙️ 系统设置';
+      }
+      
+      // Check if it's a rewards alert (e.g.签到成功)
+      if (message.includes('每日签到成功') || message.includes('签到领金币')) {
+        window.customRewardAlert(title, message, { coins: 10, tickets: 15, movieTickets: 5 });
+        return;
+      }
+      if (message.includes('奖励领取成功')) {
+        window.customRewardAlert(title, message, { coins: 50 });
+        return;
+      }
+      if (message.includes('分享文案已成功复制')) {
+        window.customRewardAlert(title, message, { coins: 500 }); // simulated currency
+        return;
+      }
+
+      window.customAlert(title, message);
+    };
+  }, []);
 
   // Common State Updaters
   const handleUpdateProfile = (newFields: Partial<UserProfile>) => {
@@ -147,8 +236,8 @@ export default function App() {
             onClick={() => setActiveTab('games')}
             className={`flex flex-col items-center gap-1 py-1 px-3 transition-all relative ${activeTab === 'games' ? 'text-white font-bold' : 'hover:text-gray-200'}`}
           >
-            <Gamepad2 className={`w-5 h-5 ${activeTab === 'games' ? 'text-brand-purple scale-110' : ''} transition-transform`} />
-            <span className="text-[10px]">游戏</span>
+            <BookOpen className={`w-5 h-5 ${activeTab === 'games' ? 'text-brand-purple scale-110' : ''} transition-transform`} />
+            <span className="text-[10px]">楼凤</span>
             {activeTab === 'games' && (
               <span className="absolute bottom-0 w-4 h-0.5 bg-brand-purple rounded-full"></span>
             )}
@@ -159,8 +248,8 @@ export default function App() {
             onClick={() => setActiveTab('chess')}
             className={`flex flex-col items-center gap-1 py-1 px-3 transition-all relative ${activeTab === 'chess' ? 'text-white font-bold' : 'hover:text-gray-200'}`}
           >
-            <Layers className={`w-5 h-5 ${activeTab === 'chess' ? 'text-brand-purple scale-110' : ''} transition-transform`} />
-            <span className="text-[10px]">棋牌</span>
+            <Globe className={`w-5 h-5 ${activeTab === 'chess' ? 'text-brand-purple scale-110' : ''} transition-transform`} />
+            <span className="text-[10px]">引流页</span>
             {activeTab === 'chess' && (
               <span className="absolute bottom-0 w-4 h-0.5 bg-brand-purple rounded-full"></span>
             )}
@@ -207,6 +296,124 @@ export default function App() {
           onClose={() => setIsCustomerServiceOpen(false)}
           username={profile.username}
         />
+
+        {/* CUSTOM GLOBAL POPUP DIALOGS (INTERNAL & BEAUTIFIED) */}
+        <AnimatePresence>
+          {dialog && dialog.isOpen && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            >
+              <motion.div 
+                initial={{ scale: 0.95, y: 15 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.95, y: 15 }}
+                className="w-full max-w-xs rounded-2xl bg-[#161616] border border-neutral-800 p-5 text-white space-y-4 shadow-2xl relative overflow-hidden"
+              >
+                {/* Visual Highlights based on dialog type */}
+                {dialog.type === 'reward' && (
+                  <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 animate-pulse" />
+                )}
+                {dialog.type === 'alert' && (
+                  <div className="absolute top-0 inset-x-0 h-1 bg-brand-purple" />
+                )}
+                {dialog.type === 'confirm' && (
+                  <div className="absolute top-0 inset-x-0 h-1 bg-brand-gold" />
+                )}
+
+                {/* Title */}
+                <div className="flex items-center gap-2 border-b border-neutral-800 pb-2">
+                  {dialog.type === 'reward' ? (
+                    <Gift className="w-4 h-4 text-yellow-500 animate-bounce" />
+                  ) : dialog.type === 'confirm' ? (
+                    <HelpCircle className="w-4 h-4 text-brand-gold" />
+                  ) : dialog.type === 'prompt' ? (
+                    <Sparkles className="w-4 h-4 text-brand-purple" />
+                  ) : (
+                    <Info className="w-4 h-4 text-brand-purple" />
+                  )}
+                  <h3 className="font-extrabold text-[10px] uppercase tracking-wider text-gray-200">
+                    {dialog.title}
+                  </h3>
+                </div>
+
+                {/* Message / Description */}
+                <div className="text-xs text-gray-300 leading-relaxed whitespace-pre-line py-1">
+                  {dialog.message}
+                </div>
+
+                {/* Optional Custom Reward Badges inside dialog */}
+                {dialog.type === 'reward' && dialog.rewards && (
+                  <div className="p-2.5 bg-neutral-900 rounded-xl border border-neutral-800 grid grid-cols-2 gap-2 text-center">
+                    {dialog.rewards.coins && (
+                      <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-2 flex flex-col items-center">
+                        <Coins className="w-4 h-4 text-amber-400 mb-1" />
+                        <span className="text-[9px] text-amber-400 font-bold">+{dialog.rewards.coins} 金币</span>
+                      </div>
+                    )}
+                    {dialog.rewards.tickets && (
+                      <div className="bg-brand-purple/10 border border-brand-purple/20 rounded-lg p-2 flex flex-col items-center">
+                        <Ticket className="w-4 h-4 text-brand-purple mb-1" />
+                        <span className="text-[9px] text-brand-purple font-bold">+{dialog.rewards.tickets} 短剧券</span>
+                      </div>
+                    )}
+                    {dialog.rewards.movieTickets && (
+                      <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-2 flex flex-col items-center col-span-2">
+                        <Film className="w-4 h-4 text-emerald-400 mb-1" />
+                        <span className="text-[9px] text-emerald-400 font-bold">+{dialog.rewards.movieTickets} 长视频券</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Optional Input for Prompt Type */}
+                {dialog.type === 'prompt' && (
+                  <div className="space-y-2">
+                    <textarea
+                      placeholder={dialog.placeholder}
+                      value={dialog.promptValue}
+                      onChange={(e) => setDialog(prev => prev ? { ...prev, promptValue: e.target.value } : null)}
+                      className="w-full h-16 bg-neutral-900 border border-neutral-800 rounded-lg p-2 text-xs text-white focus:outline-none focus:border-brand-purple resize-none placeholder:text-gray-600"
+                    />
+                  </div>
+                )}
+
+                {/* Button actions */}
+                <div className="flex items-center gap-2 pt-1">
+                  {(dialog.type === 'confirm' || dialog.type === 'prompt') && (
+                    <button
+                      onClick={() => {
+                        setDialog(prev => prev ? { ...prev, isOpen: false } : null);
+                        if (dialog.onCancel) dialog.onCancel();
+                      }}
+                      className="flex-1 py-1.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-xs font-medium text-gray-400 border border-neutral-800 transition-all"
+                    >
+                      取消
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => {
+                      setDialog(prev => prev ? { ...prev, isOpen: false } : null);
+                      if (dialog.onConfirm) {
+                        dialog.onConfirm(dialog.promptValue || '');
+                      }
+                    }}
+                    className={`flex-1 py-1.5 rounded-lg font-bold text-xs text-white transition-all shadow-md ${
+                      dialog.type === 'reward' 
+                        ? 'bg-amber-500 hover:bg-amber-400 text-black' 
+                        : 'bg-brand-purple hover:bg-brand-purple/95'
+                    }`}
+                  >
+                    {dialog.type === 'reward' ? '金币收入囊中' : '确认'}
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
       </div>
 

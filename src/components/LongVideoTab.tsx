@@ -24,8 +24,8 @@ export default function LongVideoTab({
   onOpenAiScanner
 }: LongVideoTabProps) {
   // Navigation tabs at the top (Image 4)
-  const topTabs = ['香蕉头条', '香蕉原创', '自拍偷拍', '制服诱惑', '清纯少女', '无码视频'];
-  const [activeTopTab, setActiveTopTab] = useState<string>('香蕉头条');
+  const topTabs = ['某某头条', '某某原创', '自拍偷拍', '制服诱惑', '清纯少女', '无码视频'];
+  const [activeTopTab, setActiveTopTab] = useState<string>('某某头条');
   
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [showSearchInput, setShowSearchInput] = useState<boolean>(false);
@@ -76,6 +76,12 @@ export default function LongVideoTab({
         baselineLikes[v.id] = localLikesCountMap[v.id] !== undefined ? localLikesCountMap[v.id] : (v.favorites || 500);
       });
       setLocalLikesCount(baselineLikes);
+
+      // Load comments map
+      const savedComments = localStorage.getItem('banana_long_comments_map');
+      if (savedComments) {
+        setCommentsMap(JSON.parse(savedComments));
+      }
     } catch (e) {
       console.error(e);
     }
@@ -84,6 +90,18 @@ export default function LongVideoTab({
   const [showBackToTop, setShowBackToTop] = useState<boolean>(false);
   const [showPlayOverlay, setShowPlayOverlay] = useState<boolean>(false);
   const [playerLoading, setPlayerLoading] = useState<boolean>(false);
+
+  // Perfecting details page features states
+  const [activeDetailTab, setActiveDetailTab] = useState<'info' | 'comments'>('info');
+  const [showErrorReportModal, setShowErrorReportModal] = useState<boolean>(false);
+  const [errorReportType, setErrorReportType] = useState<string>('加载卡顿/慢');
+  const [errorReportDesc, setErrorReportDesc] = useState<string>('');
+  const [showShareModal, setShowShareModal] = useState<boolean>(false);
+  const [shareVideoTarget, setShareVideoTarget] = useState<VideoItem | null>(null);
+
+  // Comments mapping with localStorage persistence
+  const [commentsMap, setCommentsMap] = useState<{[key: string]: Array<{id: string, username: string, avatar: string, content: string, likes: number, date: string, liked?: boolean, isVip?: boolean}>}>({});
+  const [newCommentText, setNewCommentText] = useState<string>('');
 
   // 影片分类 (Detailed multi-filter overlay - Image 1) state
   const [showCategoryOverlay, setShowCategoryOverlay] = useState<boolean>(false);
@@ -250,8 +268,93 @@ export default function LongVideoTab({
   };
 
   const handleShareVideo = (video: VideoItem) => {
-    navigator.clipboard.writeText(`https://banana.studio/long-video?id=${video.id}`);
-    alert(`🔗 分享链接复制成功！\n【香蕉视频独家分享】「${video.title}」超清1080P极爽播放，快分享给兄弟们一起上车！`);
+    setShareVideoTarget(video);
+    setShowShareModal(true);
+  };
+
+  // Get comments list with realistic community fallback
+  const getCommentsForVideo = (videoId: string) => {
+    if (commentsMap[videoId]) {
+      return commentsMap[videoId];
+    }
+    const presets = [
+      {
+        id: `${videoId}_c1`,
+        username: '午夜狂飙老湿',
+        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80',
+        content: '画质太牛逼了！1080P无删减，女主角这身材和声音简直让人欲罢不能，冲爆！',
+        likes: 128,
+        date: '2026-07-16 22:15',
+        isVip: true,
+        liked: false
+      },
+      {
+        id: `${videoId}_c2`,
+        username: '清纯学妹收割机',
+        avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80',
+        content: '这个剧情绝了，制服教师系列我的最爱。剧情越看越带劲，求多更新同类型的视频！',
+        likes: 85,
+        date: '2026-07-16 19:40',
+        isVip: false,
+        liked: false
+      },
+      {
+        id: `${videoId}_c3`,
+        username: '秋名山老狼',
+        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80',
+        content: '某某自营的线路是真的稳定。挂了特制分流专线加载特别快，一秒开播，赞！',
+        likes: 54,
+        date: '2026-07-15 14:02',
+        isVip: true,
+        liked: false
+      }
+    ];
+    return presets;
+  };
+
+  const handleAddComment = (videoId: string) => {
+    if (!newCommentText.trim()) return;
+    
+    const currentList = getCommentsForVideo(videoId);
+    const newComment = {
+      id: `${videoId}_user_${Date.now()}`,
+      username: profile.username || '神秘游客_586',
+      avatar: profile.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80',
+      content: newCommentText,
+      likes: 0,
+      date: new Date().toISOString().replace('T', ' ').slice(0, 16),
+      isVip: profile.vipDaysLeft > 0,
+      liked: false
+    };
+    
+    const nextList = [newComment, ...currentList];
+    const nextMap = { ...commentsMap, [videoId]: nextList };
+    
+    setCommentsMap(nextMap);
+    localStorage.setItem('banana_long_comments_map', JSON.stringify(nextMap));
+    setNewCommentText('');
+    
+    // Reward user
+    onUpdateWallet({ goldCoins: wallet.goldCoins + 2 });
+    alert('🎉 影评发表成功！感谢您的热辣分享，后台已自动打赏您 2 个金币！');
+  };
+
+  const handleLikeComment = (videoId: string, commentId: string) => {
+    const currentList = getCommentsForVideo(videoId);
+    const nextList = currentList.map(c => {
+      if (c.id === commentId) {
+        const liked = !c.liked;
+        return {
+          ...c,
+          liked,
+          likes: liked ? c.likes + 1 : c.likes - 1
+        };
+      }
+      return c;
+    });
+    const nextMap = { ...commentsMap, [videoId]: nextList };
+    setCommentsMap(nextMap);
+    localStorage.setItem('banana_long_comments_map', JSON.stringify(nextMap));
   };
 
   // Helper method to open categories screen with optional category auto-focus
@@ -279,10 +382,10 @@ export default function LongVideoTab({
         // Row 1: 类型
         if (filterType !== '全部类型') {
           // Map tags or categories
-          if (filterType === '香蕉原创' && v.category !== '香蕉原创' && !v.title.includes('原创')) return false;
+          if (filterType === '某某原创' && v.category !== '某某原创' && !v.title.includes('原创')) return false;
           if (filterType === '制服诱惑' && v.category !== '制服诱惑' && !v.title.includes('制服')) return false;
           if (filterType === '清纯少女' && v.category !== '清纯少女' && v.category !== '清纯校花' && !v.title.includes('清纯') && !v.title.includes('少女')) return false;
-          if (filterType === '香蕉头条' && v.category !== '香蕉头条' && !v.title.includes('头条')) return false;
+          if (filterType === '某某头条' && v.category !== '某某头条' && !v.title.includes('头条')) return false;
         }
 
         // Row 2: 地区
@@ -305,17 +408,17 @@ export default function LongVideoTab({
         }
       } else {
         // Main page tab selection
-        if (activeTopTab === '香蕉头条') {
+        if (activeTopTab === '某某头条') {
           // Show headline videos
-          return v.category === '香蕉头条' || v.title.includes('头条');
+          return v.category === '某某头条' || v.title.includes('头条');
         } else if (activeTopTab === '制服诱惑') {
           return v.category === '制服诱惑' || v.title.includes('制服');
         } else if (activeTopTab === '清纯少女') {
           return v.category === '清纯校花' || v.title.includes('清纯') || v.title.includes('少女');
         } else if (activeTopTab === '无码视频') {
           return v.title.includes('无码') || v.id === 'l5';
-        } else if (activeTopTab === '香蕉原创') {
-          return v.category === '香蕉原创' || v.title.includes('原创');
+        } else if (activeTopTab === '某某原创') {
+          return v.category === '某某原创' || v.title.includes('原创');
         } else if (activeTopTab === '自拍偷拍') {
           return v.category === '自拍交流' || v.title.includes('自拍');
         }
@@ -365,7 +468,7 @@ export default function LongVideoTab({
   };
 
   // Define section-specific video lists for the main screen feed (Image 2 & 3 style)
-  const bananaHeadlines = MOCK_LONG_VIDEOS.filter(v => v.category === '香蕉头条' || v.title.includes('头条'));
+  const bananaHeadlines = MOCK_LONG_VIDEOS.filter(v => v.category === '某某头条' || v.title.includes('头条'));
   const uniformVideos = MOCK_LONG_VIDEOS.filter(v => v.category === '制服诱惑' || v.title.includes('制服'));
   const pureMaidenVideos = MOCK_LONG_VIDEOS.filter(v => v.category === '清纯校花' || v.title.includes('清纯'));
   const uncensoredVideos = MOCK_LONG_VIDEOS.filter(v => v.title.includes('无码') || v.id === 'l5');
@@ -379,7 +482,7 @@ export default function LongVideoTab({
           <span className="text-xl">🍌</span>
           <div>
             <p className="font-bold text-white flex items-center gap-1">
-              香蕉头条官方影视 <span className="text-[9px] bg-brand-gold text-black px-1.5 py-0.5 rounded font-black">PRO</span>
+              某某头条官方影视 <span className="text-[9px] bg-brand-gold text-black px-1.5 py-0.5 rounded font-black">PRO</span>
             </p>
             <p className="text-[10px] text-purple-200">极速线路 · 超清画质 · 无感翻墙</p>
           </div>
@@ -396,7 +499,7 @@ export default function LongVideoTab({
       {/* 2. Brand Studio Header with icons (Image 4 style) */}
       <div className="p-4 pb-2 bg-brand-bg flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-2xl font-black bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent">香蕉视频</span>
+          <span className="text-2xl font-black bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent">某某视频</span>
           <span className="text-[10px] uppercase font-mono tracking-wider text-gray-500 border border-neutral-800 px-1.5 rounded">Banana Studio</span>
         </div>
         <div className="flex items-center gap-2.5">
@@ -443,8 +546,9 @@ export default function LongVideoTab({
       <div className="px-4 py-2">
         <div 
           onClick={() => {
-            alert('🎰 官方直营 新葡京大放水 模拟开启！已为您派送 ¥1,888 注册模拟彩金，请在副钱包中查收！');
+            alert('🎰 官方直营 新葡京大放水 模拟开启！已为您派送 ¥1,888 注册模拟彩金，即将为您跳转到游戏大厅中查收！');
             onUpdateWallet({ gameBalance: wallet.gameBalance + 1888 });
+            document.getElementById('nav-chess')?.click();
           }}
           className="relative bg-gradient-to-r from-red-600 via-yellow-600 to-amber-700 p-3 rounded-xl border border-yellow-500/30 overflow-hidden cursor-pointer shadow-lg hover:brightness-105 transition-all flex items-center gap-3"
         >
@@ -467,7 +571,7 @@ export default function LongVideoTab({
       </div>
 
       {/* 5. Main Feed Sections Layout */}
-      {activeTopTab !== '香蕉头条' || searchQuery ? (
+      {activeTopTab !== '某某头条' || searchQuery ? (
         <div className="p-4">
           <h3 className="text-xs font-black tracking-wider text-gray-400 mb-3">
             {searchQuery ? `🔍 搜索结果: "${searchQuery}"` : `📂 ${activeTopTab} 影片列表`}
@@ -959,7 +1063,7 @@ export default function LongVideoTab({
               {/* Row 1: 类型 */}
               <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
                 <span className="text-[10px] font-black text-brand-purple shrink-0 bg-brand-purple/10 px-2 py-1 rounded border border-brand-purple/20">类型</span>
-                {['全部类型', '香蕉原创', '制服诱惑', '清纯少女', '辣妹大奶', '女同'].map((item) => (
+                {['全部类型', '某某原创', '制服诱惑', '清纯少女', '辣妹大奶', '女同'].map((item) => (
                   <button
                     key={item}
                     onClick={() => setFilterType(item)}
@@ -1227,7 +1331,7 @@ export default function LongVideoTab({
               {playerLoading ? (
                 <div className="flex flex-col items-center gap-3">
                   <div className="w-10 h-10 rounded-full border-2 border-pink-500 border-t-transparent animate-spin"></div>
-                  <span className="text-xs text-pink-500 animate-pulse">香蕉云播专线极速分流中...</span>
+                  <span className="text-xs text-pink-500 animate-pulse">某某云播专线极速分流中...</span>
                 </div>
               ) : (
                 <>
@@ -1251,7 +1355,7 @@ export default function LongVideoTab({
               {/* Partner Card: PG娱乐城 (Image 1 style) */}
               <div 
                 onClick={() => {
-                  alert('🎰 PG娱乐城官方指定福利：注册即送模拟体验金￥1000！即将为您跳转到棋牌大厅...');
+                  alert('🎰 PG娱乐城官方指定福利：注册即送模拟体验金￥1000！即将为您跳转到游戏大厅...');
                   onUpdateWallet({ gameBalance: wallet.gameBalance + 1000 });
                   // Real jump/navigation!
                   document.getElementById('nav-chess')?.click();
@@ -1266,198 +1370,478 @@ export default function LongVideoTab({
                   </div>
                   <div>
                     <h4 className="font-extrabold text-xs text-white">PG娱乐城</h4>
-                    <p className="text-[9px] text-gray-400 mt-0.5">世界杯10亿现金竞猜，新客送好礼</p>
+                    <p className="text-[9px] text-gray-400 mt-0.5">最新电子大放水，极速秒到账</p>
                   </div>
                 </div>
                 <button className="px-3.5 py-1 rounded-full border border-pink-500 text-pink-500 text-[10px] font-black hover:bg-pink-500/10 transition-colors">
-                  下载
+                  进入
                 </button>
               </div>
 
               {/* Sub tabs: 视频详情 vs 评论 */}
-              <div className="flex justify-center border-b border-neutral-800/80 pb-1 gap-12">
+              <div className="flex justify-center border-b border-neutral-800/80 pb-1 gap-12 shrink-0">
                 <button 
-                  onClick={() => {
-                    const el = document.getElementById('long-detail-view');
-                    if (el) el.scrollIntoView({ behavior: 'smooth' });
-                  }}
-                  className="text-xs font-black relative pb-2 text-pink-500 border-b-2 border-pink-500"
+                  onClick={() => setActiveDetailTab('info')}
+                  className={`text-xs font-black relative pb-2 transition-all ${activeDetailTab === 'info' ? 'text-pink-500 border-b-2 border-pink-500' : 'text-gray-400 hover:text-white'}`}
                 >
                   视频详情
                 </button>
                 <button 
-                  onClick={() => {
-                    const msg = prompt('✍️ 老司机写下您的精彩观影影评：');
-                    if (msg) alert('🎉 影评已提交审核，审核通过后即刻展示！赠送您电影券 1 张。');
-                  }}
-                  className="text-xs font-bold pb-2 text-gray-400 hover:text-white"
+                  onClick={() => setActiveDetailTab('comments')}
+                  className={`text-xs font-black relative pb-2 transition-all ${activeDetailTab === 'comments' ? 'text-pink-500 border-b-2 border-pink-500' : 'text-gray-400 hover:text-white'}`}
                 >
-                  评论
+                  评论 ({getCommentsForVideo(activeVideo.id).length})
                 </button>
               </div>
 
-              {/* Video Info Rounded Card (Image 1 exact style) */}
-              <div id="long-detail-view" className="p-4 bg-brand-card rounded-2xl border border-neutral-800/80 space-y-4">
-                <h3 className="text-xs font-extrabold text-gray-100 leading-relaxed">
-                  {activeVideo.title}
-                </h3>
+              {activeDetailTab === 'info' ? (
+                <>
+                  {/* Video Info Rounded Card (Image 1 exact style) */}
+                  <div id="long-detail-view" className="p-4 bg-brand-card rounded-2xl border border-neutral-800/80 space-y-4">
+                    <h3 className="text-xs font-extrabold text-gray-100 leading-relaxed">
+                      {activeVideo.title}
+                    </h3>
 
-                {/* Info row */}
-                <div className="flex items-center justify-between text-[10px] text-gray-400">
-                  <div className="flex items-center gap-3">
-                    <span className="text-gray-300">▷ 6w</span>
-                    <span>2026-07-16</span>
-                    <span className="text-brand-gold font-bold">10.0分</span>
-                  </div>
-                  
-                  <button 
-                    onClick={() => {
-                      const reason = prompt('请输入视频报错的具体原因（例如：卡顿、声画不同步、画质不佳等）：');
-                      if (reason) alert('🙏 感谢您的热心报错！值班房管已收到，我们会在15分钟内修复并赠送您金币！');
-                    }}
-                    className="text-[9px] text-pink-400 bg-pink-500/10 px-2 py-0.5 rounded border border-pink-500/20 font-bold"
-                  >
-                    ⚠️ 视频报错
-                  </button>
-                </div>
-
-                {/* 4 Interactive action buttons */}
-                <div className="grid grid-cols-4 gap-2 pt-1">
-                  <button 
-                    onClick={() => handleLikeVideo(activeVideo.id)}
-                    className={`flex flex-col items-center justify-center p-2 rounded-xl transition-all border ${
-                      likedVideos[activeVideo.id] 
-                        ? 'bg-brand-purple/20 border-brand-purple text-brand-purple' 
-                        : 'bg-neutral-900/50 hover:bg-neutral-800 border-neutral-800/50 text-gray-300'
-                    }`}
-                  >
-                    <span className="text-sm">👍</span>
-                    <span className="text-[9px] font-bold mt-1">
-                      {localLikesCount[activeVideo.id] ?? 508}
-                    </span>
-                  </button>
-
-                  <button 
-                    onClick={() => handleDislikeVideo(activeVideo.id)}
-                    className={`flex flex-col items-center justify-center p-2 rounded-xl transition-all border ${
-                      dislikedVideos[activeVideo.id] 
-                        ? 'bg-red-500/20 border-red-500 text-red-500' 
-                        : 'bg-neutral-900/50 hover:bg-neutral-800 border-neutral-800/50 text-gray-300'
-                    }`}
-                  >
-                    <span className="text-sm">👎</span>
-                    <span className="text-[9px] font-bold mt-1">
-                      {dislikedVideos[activeVideo.id] ? 32 : 31}
-                    </span>
-                  </button>
-
-                  <button 
-                    onClick={() => handleFavoriteVideo(activeVideo)}
-                    className={`flex flex-col items-center justify-center p-2 rounded-xl transition-all border ${
-                      favoritedVideos[activeVideo.id] 
-                        ? 'bg-amber-500/20 border-amber-500 text-amber-400' 
-                        : 'bg-neutral-900/50 hover:bg-neutral-800 border-neutral-800/50 text-gray-300'
-                    }`}
-                  >
-                    <span className="text-sm">⭐</span>
-                    <span className="text-[9px] font-bold mt-1">
-                      {favoritedVideos[activeVideo.id] ? '已收藏' : '收藏'}
-                    </span>
-                  </button>
-
-                  <button 
-                    onClick={() => handleShareVideo(activeVideo)}
-                    className="flex flex-col items-center justify-center p-2 bg-neutral-900/50 hover:bg-neutral-800 rounded-xl transition-all border border-neutral-800/50 text-gray-300 hover:text-white"
-                  >
-                    <span className="text-sm">🔗</span>
-                    <span className="text-[9px] font-bold mt-1">分享</span>
-                  </button>
-                </div>
-
-                {/* Tag pills list */}
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {['白虎', '勾引', '少女', '巨乳', '内射', '调教'].map((tag) => (
-                    <span 
-                      key={tag}
-                      className="px-2.5 py-0.5 rounded-full border border-pink-500/30 text-[9px] text-pink-300 bg-pink-500/5 font-medium"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Promo advertisement banner (Image 1 style) */}
-              <div 
-                onClick={() => {
-                  alert('🗺️ 同城寻欢已定位！下载专属APP，查看您身边 1.5km 范围内的 18 位空姐/萝莉/少妇会员！');
-                }}
-                className="p-3 rounded-xl bg-gradient-to-r from-purple-900/30 via-[#2a1b3d] to-pink-950/40 border border-pink-500/30 flex items-center justify-between cursor-pointer hover:border-pink-500/50 transition-all"
-              >
-                <div className="flex items-center gap-2.5">
-                  <span className="text-2xl">✈️</span>
-                  <div>
-                    <h4 className="text-[11px] font-black text-white flex items-center gap-1.5">
-                      <span>全国空降</span>
-                      <span className="bg-yellow-400 text-black text-[7px] px-1 rounded-sm">真人验证</span>
-                    </h4>
-                    <p className="text-[9px] text-gray-400 mt-0.5">学生 / 护士 / 御姐 / 萝莉 / 模特 / 少妇</p>
-                  </div>
-                </div>
-                <ChevronRight className="w-4 h-4 text-gray-400" />
-              </div>
-
-              {/* 为你推荐 (Recommended videos list matching image 1 details) */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-1.5 text-white pl-1">
-                  <span className="text-pink-500 font-black">//</span>
-                  <h3 className="font-extrabold text-xs tracking-wider">为你推荐</h3>
-                </div>
-
-                <div className="grid grid-cols-1 gap-3.5">
-                  {MOCK_LONG_VIDEOS.filter(v => v.id !== activeVideo.id).slice(0, 3).map((video) => (
-                    <div 
-                      key={`recommend-${video.id}`}
-                      onClick={() => {
-                        setPlayerLoading(true);
-                        setActiveVideo(video);
-                        setTimeout(() => setPlayerLoading(false), 800);
-                      }}
-                      className="flex gap-3 bg-brand-card rounded-xl p-2.5 border border-neutral-800/80 cursor-pointer hover:bg-neutral-800/50 transition-all group"
-                    >
-                      {/* Left Thumbnail with VIP badge */}
-                      <div className="relative w-32 aspect-[16/10] bg-black rounded-lg overflow-hidden shrink-0">
-                        <img src={video.coverUrl} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                        <span className="absolute bottom-1 right-1 bg-black/75 px-1 py-0.2 rounded text-[8px] font-mono">{video.duration}</span>
-                        {video.isVipOnly && (
-                          <span className="absolute top-1 left-1 bg-brand-gold text-black text-[7px] font-black px-1 rounded shadow">VIP</span>
-                        )}
-                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-1 flex justify-between text-[8px] text-gray-300">
-                          <span>▷ 11k</span>
-                          <span>❤️ 869</span>
-                        </div>
+                    {/* Info row */}
+                    <div className="flex items-center justify-between text-[10px] text-gray-400">
+                      <div className="flex items-center gap-3">
+                        <span className="text-gray-300">▷ 6w</span>
+                        <span>2026-07-16</span>
+                        <span className="text-brand-gold font-bold">10.0分</span>
                       </div>
+                      
+                      <button 
+                        onClick={() => setShowErrorReportModal(true)}
+                        className="text-[9px] text-pink-400 bg-pink-500/10 px-2.5 py-0.5 rounded border border-pink-500/20 font-bold hover:bg-pink-500/20 transition-all flex items-center gap-1 animate-pulse"
+                      >
+                        <span>⚠️ 视频报错</span>
+                      </button>
+                    </div>
 
-                      {/* Right details */}
-                      <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
-                        <h4 className="text-[10px] font-bold text-gray-200 group-hover:text-pink-500 line-clamp-2 leading-relaxed transition-colors">
-                          {video.title}
+                    {/* 4 Interactive action buttons */}
+                    <div className="grid grid-cols-4 gap-2 pt-1">
+                      <button 
+                        onClick={() => handleLikeVideo(activeVideo.id)}
+                        className={`flex flex-col items-center justify-center p-2 rounded-xl transition-all border ${
+                          likedVideos[activeVideo.id] 
+                            ? 'bg-brand-purple/20 border-brand-purple text-brand-purple' 
+                            : 'bg-neutral-900/50 hover:bg-neutral-800 border-neutral-800/50 text-gray-300'
+                        }`}
+                      >
+                        <span className="text-sm">👍</span>
+                        <span className="text-[9px] font-bold mt-1">
+                          {localLikesCount[activeVideo.id] ?? 508}
+                        </span>
+                      </button>
+
+                      <button 
+                        onClick={() => handleDislikeVideo(activeVideo.id)}
+                        className={`flex flex-col items-center justify-center p-2 rounded-xl transition-all border ${
+                          dislikedVideos[activeVideo.id] 
+                            ? 'bg-red-500/20 border-red-500 text-red-500' 
+                            : 'bg-neutral-900/50 hover:bg-neutral-800 border-neutral-800/50 text-gray-300'
+                        }`}
+                      >
+                        <span className="text-sm">👎</span>
+                        <span className="text-[9px] font-bold mt-1">
+                          {dislikedVideos[activeVideo.id] ? 32 : 31}
+                        </span>
+                      </button>
+
+                      <button 
+                        onClick={() => handleFavoriteVideo(activeVideo)}
+                        className={`flex flex-col items-center justify-center p-2 rounded-xl transition-all border ${
+                          favoritedVideos[activeVideo.id] 
+                            ? 'bg-amber-500/20 border-amber-500 text-amber-400' 
+                            : 'bg-neutral-900/50 hover:bg-neutral-800 border-neutral-800/50 text-gray-300'
+                        }`}
+                      >
+                        <span className="text-sm">⭐</span>
+                        <span className="text-[9px] font-bold mt-1">
+                          {favoritedVideos[activeVideo.id] ? '已收藏' : '收藏'}
+                        </span>
+                      </button>
+
+                      <button 
+                        onClick={() => handleShareVideo(activeVideo)}
+                        className="flex flex-col items-center justify-center p-2 bg-neutral-900/50 hover:bg-neutral-800 rounded-xl transition-all border border-neutral-800/50 text-gray-300 hover:text-white"
+                      >
+                        <span className="text-sm">🔗</span>
+                        <span className="text-[9px] font-bold mt-1">分享</span>
+                      </button>
+                    </div>
+
+                    {/* Tag pills list */}
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {['白虎', '勾引', '少女', '巨乳', '内射', '调教'].map((tag) => (
+                        <span 
+                          key={tag}
+                          className="px-2.5 py-0.5 rounded-full border border-pink-500/30 text-[9px] text-pink-300 bg-pink-500/5 font-medium"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Promo advertisement banner (全国空降) */}
+                  <div 
+                    onClick={() => {
+                      alert('🗺️ 同城寻欢已定位！下载专属APP，查看您身边 1.5km 范围内的 18 位空姐/萝莉/少妇会员！');
+                    }}
+                    className="p-3 rounded-xl bg-gradient-to-r from-purple-900/30 via-[#2a1b3d] to-pink-950/40 border border-pink-500/30 flex items-center justify-between cursor-pointer hover:border-pink-500/50 transition-all"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-2xl">✈️</span>
+                      <div>
+                        <h4 className="text-[11px] font-black text-white flex items-center gap-1.5">
+                          <span>全国空降</span>
+                          <span className="bg-yellow-400 text-black text-[7px] px-1 rounded-sm">真人验证</span>
                         </h4>
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {video.tags.slice(0, 3).map((t) => (
-                            <span key={t} className="text-[8px] text-gray-400 bg-[#252525] px-1 rounded">
-                              {t}
-                            </span>
-                          ))}
-                        </div>
+                        <p className="text-[9px] text-gray-400 mt-0.5">学生 / 护士 / 御姐 / 萝莉 / 模特 / 少妇</p>
                       </div>
                     </div>
-                  ))}
+                    <ChevronRight className="w-4 h-4 text-gray-400" />
+                  </div>
+
+                  {/* 为你推荐 */}
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-1.5 text-white pl-1">
+                      <span className="text-pink-500 font-black">//</span>
+                      <h3 className="font-extrabold text-xs tracking-wider">为你推荐</h3>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-3.5 animate-fade-in">
+                      {MOCK_LONG_VIDEOS.filter(v => v.id !== activeVideo.id).slice(0, 3).map((video) => (
+                        <div 
+                          key={`recommend-${video.id}`}
+                          onClick={() => {
+                            setPlayerLoading(true);
+                            setActiveVideo(video);
+                            setActiveDetailTab('info');
+                            setTimeout(() => setPlayerLoading(false), 800);
+                          }}
+                          className="flex gap-3 bg-brand-card rounded-xl p-2.5 border border-neutral-800/80 cursor-pointer hover:bg-neutral-800/50 transition-all group"
+                        >
+                          <div className="relative w-32 aspect-[16/10] bg-black rounded-lg overflow-hidden shrink-0">
+                            <img src={video.coverUrl} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                            <span className="absolute bottom-1 right-1 bg-black/75 px-1 py-0.2 rounded text-[8px] font-mono">{video.duration}</span>
+                            {video.isVipOnly && (
+                              <span className="absolute top-1 left-1 bg-brand-gold text-black text-[7px] font-black px-1 rounded shadow">VIP</span>
+                            )}
+                            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-1 flex justify-between text-[8px] text-gray-300">
+                              <span>▷ 11k</span>
+                              <span>❤️ 869</span>
+                            </div>
+                          </div>
+
+                          <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+                            <h4 className="text-[10px] font-bold text-gray-200 group-hover:text-pink-500 line-clamp-2 leading-relaxed transition-colors">
+                              {video.title}
+                            </h4>
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {video.tags.slice(0, 3).map((t) => (
+                                <span key={t} className="text-[8px] text-gray-400 bg-[#252525] px-1 rounded">
+                                  {t}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                /* Dynamic Interactive Comments Panel */
+                <div className="space-y-4">
+                  {/* Write comment input */}
+                  <div className="p-3 bg-brand-card rounded-xl border border-neutral-800 space-y-2">
+                    <p className="text-[10px] text-gray-400 font-bold flex items-center gap-1">
+                      <span>✍️</span>
+                      <span>发表真实影评 (发表赠送 2 金币奖励)</span>
+                    </p>
+                    <div className="flex gap-2">
+                      <input 
+                        type="text"
+                        placeholder="说点好听的，文明观影，老司机带带我..."
+                        value={newCommentText}
+                        onChange={(e) => setNewCommentText(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') handleAddComment(activeVideo.id);
+                        }}
+                        className="flex-1 bg-brand-bg border border-neutral-800 rounded-lg p-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-pink-500/40"
+                      />
+                      <button 
+                        onClick={() => handleAddComment(activeVideo.id)}
+                        className="px-4 py-1.5 rounded-lg bg-brand-purple hover:bg-brand-purple/80 text-white font-black text-xs transition-colors"
+                      >
+                        发送
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Comments Feed List */}
+                  <div className="space-y-3.5 max-h-[400px] overflow-y-auto no-scrollbar pr-1">
+                    {getCommentsForVideo(activeVideo.id).length === 0 ? (
+                      <div className="py-12 text-center text-xs text-gray-500">
+                        🏜️ 暂无老司机的观影影评，赶快抢占沙发吧！
+                      </div>
+                    ) : (
+                      getCommentsForVideo(activeVideo.id).map((cmt) => (
+                        <div key={cmt.id} className="p-3 bg-brand-card rounded-xl border border-neutral-800/60 flex gap-3 items-start">
+                          <img 
+                            src={cmt.avatar} 
+                            alt={cmt.username}
+                            className="w-8 h-8 rounded-full object-cover shrink-0 border border-neutral-800"
+                            referrerPolicy="no-referrer"
+                          />
+                          <div className="flex-1 min-w-0 space-y-1">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-[10px] font-black text-gray-200">{cmt.username}</span>
+                                {cmt.isVip && (
+                                  <span className="text-[7px] bg-brand-gold/15 text-brand-gold px-1 py-0.2 rounded font-black scale-90">VIP</span>
+                                )}
+                              </div>
+                              <span className="text-[8px] text-gray-500">{cmt.date}</span>
+                            </div>
+                            <p className="text-[10px] text-gray-300 leading-relaxed whitespace-pre-wrap">{cmt.content}</p>
+                            
+                            <div className="flex items-center gap-4 pt-1.5">
+                              <button 
+                                onClick={() => handleLikeComment(activeVideo.id, cmt.id)}
+                                className={`flex items-center gap-1 text-[9px] font-bold ${cmt.liked ? 'text-pink-500' : 'text-gray-500 hover:text-white'}`}
+                              >
+                                <span>{cmt.liked ? '❤️' : '🤍'}</span>
+                                <span>{cmt.likes}</span>
+                              </button>
+                              <span className="text-[8px] text-gray-600">已验真</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
 
             </div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Dynamic Video Error Report Modal */}
+      <AnimatePresence>
+        {showErrorReportModal && activeVideo && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-brand-card w-full max-w-sm rounded-2xl border border-neutral-800 p-5 space-y-4"
+            >
+              <div className="flex justify-between items-center pb-2 border-b border-neutral-800">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">⚠️</span>
+                  <h3 className="text-xs font-black text-white">视频播放报错</h3>
+                </div>
+                <button 
+                  onClick={() => setShowErrorReportModal(false)}
+                  className="w-6 h-6 rounded-full bg-neutral-900 flex items-center justify-center text-gray-400 hover:text-white"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                <p className="text-[10px] text-gray-400 font-bold">请选择遇到的问题类型 (反馈核实赠送 5 金币)：</p>
+                
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    '加载卡顿/慢',
+                    '播放黑屏/无图像',
+                    '音画不同步',
+                    '无声音/杂音',
+                    '中文字幕错误',
+                    '线路失效/无法开播'
+                  ].map((type) => (
+                    <button
+                      key={type}
+                      onClick={() => setErrorReportType(type)}
+                      className={`py-1.5 px-2 rounded-lg text-[10px] font-bold text-center border transition-all ${
+                        errorReportType === type
+                          ? 'bg-brand-purple/20 border-brand-purple text-brand-purple'
+                          : 'bg-neutral-950 border-neutral-800 text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      {type}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="space-y-1.5 pt-1">
+                  <label className="text-[10px] text-gray-400 font-bold block">具体细节描述 (选填):</label>
+                  <textarea
+                    rows={3}
+                    placeholder="老司机，请详细描述下报错细节（例如播放到第几分钟开始卡顿，或者哪个报错代码），方便我们极速修复..."
+                    value={errorReportDesc}
+                    onChange={(e) => setErrorReportDesc(e.target.value)}
+                    className="w-full bg-neutral-950 border border-neutral-800 rounded-lg p-2 text-[10px] text-white placeholder-gray-600 focus:outline-none focus:border-pink-500/30"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <button
+                  onClick={() => setShowErrorReportModal(false)}
+                  className="flex-1 py-2 rounded-lg bg-neutral-900 border border-neutral-800 text-[11px] font-bold text-gray-400 hover:text-white transition-colors"
+                >
+                  取消
+                </button>
+                <button
+                  onClick={() => {
+                    // Reward user for helping the platform
+                    onUpdateWallet({ goldCoins: wallet.goldCoins + 5 });
+                    setShowErrorReportModal(false);
+                    setErrorReportDesc('');
+                    alert(`🙏 感谢报错！值班房管已收到「${errorReportType}」问题反馈。\n系统已自动打赏您 5 个金币，我们会在 15 分钟内完成修复。`);
+                  }}
+                  className="flex-1 py-2 rounded-lg bg-brand-gradient text-[11px] font-black text-white hover:brightness-105 transition-all"
+                >
+                  提交报错
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Dynamic Exquisite Share Modal */}
+      <AnimatePresence>
+        {showShareModal && shareVideoTarget && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-fade-in">
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0, y: 10 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 10 }}
+              className="bg-brand-card w-full max-w-sm rounded-3xl border border-pink-500/20 p-5 space-y-4 relative overflow-hidden"
+            >
+              {/* Artistic Background glow */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-brand-purple/10 rounded-full blur-2xl -z-10" />
+
+              <div className="flex justify-between items-center pb-2 border-b border-neutral-800">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-base">🎫</span>
+                  <h3 className="text-xs font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-yellow-400">
+                    老司机专属上车分享票
+                  </h3>
+                </div>
+                <button 
+                  onClick={() => setShowShareModal(false)}
+                  className="w-6 h-6 rounded-full bg-neutral-900 flex items-center justify-center text-gray-400 hover:text-white"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              {/* Share card content */}
+              <div className="p-3 bg-neutral-950 rounded-2xl border border-neutral-800 space-y-3">
+                <div className="flex gap-3">
+                  <img 
+                    src={shareVideoTarget.coverUrl} 
+                    alt={shareVideoTarget.title}
+                    className="w-20 aspect-[16/10] object-cover rounded-lg border border-neutral-800 shrink-0"
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+                    <h4 className="text-[10px] font-black text-gray-200 line-clamp-2 leading-relaxed">
+                      {shareVideoTarget.title}
+                    </h4>
+                    <p className="text-[8px] text-gray-500 font-bold">1080P 超清 / 自营专线极速</p>
+                  </div>
+                </div>
+
+                <div className="bg-brand-card p-2 rounded-lg border border-neutral-900 flex justify-between items-center text-[10px]">
+                  <div>
+                    <span className="text-gray-400 block text-[8px] font-bold">您的专属推广邀请码</span>
+                    <span className="text-brand-gold font-black tracking-widest text-xs">BANANA{profile.id ? profile.id.slice(0, 5).toUpperCase() : '888'}</span>
+                  </div>
+                  <span className="text-[7px] bg-yellow-400/10 text-yellow-400 px-1.5 py-0.5 rounded font-bold border border-yellow-400/20">
+                    新客送 1 天 VIP
+                  </span>
+                </div>
+              </div>
+
+              {/* Sharing Channel Buttons */}
+              <div className="space-y-2">
+                <p className="text-[9px] text-gray-400 font-black">点击选择分享渠道 (分享即送电影券 + VIP体验):</p>
+                
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(`https://banana.studio/long-video?id=${shareVideoTarget.id}&code=BANANA${profile.id ? profile.id.slice(0, 5).toUpperCase() : '888'}`);
+                      onUpdateProfile({ movieTickets: profile.movieTickets + 1 });
+                      alert('🔗 分享链接已成功复制至剪贴板！\n已奖励您 1 张观影电影券，快去分享给好友一起上车吧！');
+                    }}
+                    className="p-2 bg-neutral-950 border border-neutral-800 rounded-xl hover:border-pink-500/20 text-left transition-all flex items-center gap-2"
+                  >
+                    <span className="text-lg">📋</span>
+                    <div>
+                      <span className="text-[9px] text-gray-200 font-bold block">复制链接</span>
+                      <span className="text-[7px] text-emerald-400 block font-bold">+1 张电影券</span>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      alert('📲 微信模拟分享成功！\n系统已为您自动激活 1 天专属 VIP 会员奖励！');
+                      onUpdateProfile({ vipDaysLeft: profile.vipDaysLeft + 1 });
+                    }}
+                    className="p-2 bg-neutral-950 border border-neutral-800 rounded-xl hover:border-pink-500/20 text-left transition-all flex items-center gap-2"
+                  >
+                    <span className="text-lg">💬</span>
+                    <div>
+                      <span className="text-[9px] text-gray-200 font-bold block">微信群</span>
+                      <span className="text-[7px] text-pink-400 block font-bold">+1 天 VIP</span>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      alert('✈️ Telegram群分享指令已发出！\n系统已为您自动激活 1 天专属 VIP 会员奖励！');
+                      onUpdateProfile({ vipDaysLeft: profile.vipDaysLeft + 1 });
+                    }}
+                    className="p-2 bg-neutral-950 border border-neutral-800 rounded-xl hover:border-pink-500/20 text-left transition-all flex items-center gap-2"
+                  >
+                    <span className="text-lg">✈️</span>
+                    <div>
+                      <span className="text-[9px] text-gray-200 font-bold block">电报群</span>
+                      <span className="text-[7px] text-pink-400 block font-bold">+1 天 VIP</span>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      alert('⭐ QQ空间与QQ群分享成功！\n系统已为您自动激活 1 天专属 VIP 会员奖励！');
+                      onUpdateProfile({ vipDaysLeft: profile.vipDaysLeft + 1 });
+                    }}
+                    className="p-2 bg-neutral-950 border border-neutral-800 rounded-xl hover:border-pink-500/20 text-left transition-all flex items-center gap-2"
+                  >
+                    <span className="text-lg">🐧</span>
+                    <div>
+                      <span className="text-[9px] text-gray-200 font-bold block">QQ 群/空间</span>
+                      <span className="text-[7px] text-pink-400 block font-bold">+1 天 VIP</span>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              <div className="pt-1.5 text-center text-[8px] text-gray-500 font-bold leading-relaxed">
+                📢 推广提示：每成功邀请 1 位好友注册，您和好友均可额外获得 10 金币 + 3 天不限速 VIP 会员！
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
 

@@ -6,6 +6,7 @@ export interface UserWallet {
 }
 
 export interface UserProfile {
+  id?: string;
   isLoggedIn: boolean;
   username: string;
   avatar: string;
@@ -14,6 +15,7 @@ export interface UserProfile {
   longVideoTickets: number; // 长视频剩余观影次数
   shortVideoTickets: number; // 短视频剩余观影次数
   inviteCode: string;
+  movieTickets?: number;   // 电影券
 }
 
 export interface VideoComment {
@@ -79,3 +81,13 @@ export interface WinnerAnnouncement {
   prize: number;
   time: string;
 }
+
+declare global {
+  interface Window {
+    customAlert: (title: string, message: string) => void;
+    customConfirm: (title: string, message: string, onConfirm: () => void) => void;
+    customPrompt: (title: string, message: string, onConfirm: (val: string) => void, placeholder?: string) => void;
+    customRewardAlert: (title: string, message: string, rewards: { coins?: number; vipDays?: number; tickets?: number; movieTickets?: number }) => void;
+  }
+}
+

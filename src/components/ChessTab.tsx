@@ -138,7 +138,7 @@ export default function ChessTab({
       name: '龙虎斗',
       icon: '🐯',
       coverUrl: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=400&q=80',
-      description: '两雄争霸，一决棋盘，赔率高，极速开奖！',
+      description: '两雄争霸，一决高下，赔率高，极速开奖！',
       minLimit: 20,
       onlineCount: 11020,
       category: 'hot'
@@ -300,7 +300,7 @@ export default function ChessTab({
             <span className="text-3xl animate-bounce">🍌</span>
             <div>
               <h1 className="text-xl font-black text-yellow-300 tracking-tight flex items-center gap-1 font-sans">
-                香蕉视频
+                某某视频
               </h1>
               <p className="text-[9px] text-white/90 uppercase font-mono tracking-wider">Banana Studio</p>
             </div>
@@ -430,7 +430,7 @@ export default function ChessTab({
             <div className="space-y-3">
               {[
                 { title: '🎁 绑定推广码 BANANA66 赠￥88', subtitle: '新老会员在充值界面输入专属推广码，立得88金币特权，赠送长视频无限看！', bg: 'from-pink-50 to-red-50 border-pink-100', text: 'text-red-700' },
-                { title: '🛡️ 每日包赔特权：亏损返还 15%', subtitle: '凡在棋牌馆每日累计损耗达到 ￥100 即可自动返点，次日一键提款。', bg: 'from-amber-50 to-orange-50 border-amber-100', text: 'text-amber-800' },
+                { title: '🛡️ 每日包赔特权：亏损返还 15%', subtitle: '凡在游戏电玩馆每日累计损耗达到 ￥100 即可自动返点，次日一键提款。', bg: 'from-amber-50 to-orange-50 border-amber-100', text: 'text-amber-800' },
               ].map((promo, idx) => (
                 <div 
                   key={idx}
