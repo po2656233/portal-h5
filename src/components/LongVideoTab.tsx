@@ -26,7 +26,7 @@ export default function LongVideoTab({
   onFullscreenChange
 }: LongVideoTabProps) {
   // Navigation tabs at the top (Image 4)
-  const topTabs = ['某某头条', '某某原创', '条目一', '条目二', '条目三', '条目四', '条目五', '条目六', '条目七', '条目八', '条目九', '条目十', '制服诱惑', '清纯少女', '无码视频', '自拍偷拍'];
+  const topTabs = ['某某头条', '某某原创', '自拍偷拍', '制服诱惑', '清纯少女', '无码视频'];
   const [activeTopTab, setActiveTopTab] = useState<string>('某某头条');
   
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -94,9 +94,9 @@ export default function LongVideoTab({
 
   useEffect(() => {
     if (onFullscreenChange) {
-      onFullscreenChange(showPlayOverlay);
+      onFullscreenChange(false);
     }
-  }, [showPlayOverlay, onFullscreenChange]);
+  }, [onFullscreenChange]);
   const [playerLoading, setPlayerLoading] = useState<boolean>(false);
 
   // Perfecting details page features states
@@ -310,7 +310,7 @@ export default function LongVideoTab({
         id: `${videoId}_c3`,
         username: '秋名山老狼',
         avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80',
-        content: '某某自营的线路是真的稳定。挂了特制分流专线加载特别快，一秒开播，赞！',
+        content: '自营的线路是真的稳定。挂了特制分流专线加载特别快，一秒开播，赞！',
         likes: 54,
         date: '2026-07-15 14:02',
         isVip: true,
@@ -390,10 +390,10 @@ export default function LongVideoTab({
         // Row 1: 类型
         if (filterType !== '全部类型') {
           // Map tags or categories
-          if (filterType === '某某原创' && v.category !== '某某原创' && !v.title.includes('原创')) return false;
+          if (filterType === '某某原创' && v.category !== '某某原创' && v.category !== '香蕉原创' && !v.title.includes('原创')) return false;
           if (filterType === '制服诱惑' && v.category !== '制服诱惑' && !v.title.includes('制服')) return false;
           if (filterType === '清纯少女' && v.category !== '清纯少女' && v.category !== '清纯校花' && !v.title.includes('清纯') && !v.title.includes('少女')) return false;
-          if (filterType === '某某头条' && v.category !== '某某头条' && !v.title.includes('头条')) return false;
+          if (filterType === '某某头条' && v.category !== '某某头条' && v.category !== '香蕉头条' && !v.title.includes('头条')) return false;
         }
 
         // Row 2: 地区
@@ -418,7 +418,7 @@ export default function LongVideoTab({
         // Main page tab selection
         if (activeTopTab === '某某头条') {
           // Show headline videos
-          return v.category === '某某头条' || v.title.includes('头条');
+          return v.category === '香蕉头条' || v.category === '某某头条' || v.title.includes('头条');
         } else if (activeTopTab === '制服诱惑') {
           return v.category === '制服诱惑' || v.title.includes('制服');
         } else if (activeTopTab === '清纯少女') {
@@ -426,7 +426,7 @@ export default function LongVideoTab({
         } else if (activeTopTab === '无码视频') {
           return v.title.includes('无码') || v.id === 'l5';
         } else if (activeTopTab === '某某原创') {
-          return v.category === '某某原创' || v.title.includes('原创');
+          return v.category === '香蕉原创' || v.category === '某某原创' || v.title.includes('原创');
         } else if (activeTopTab === '自拍偷拍') {
           return v.category === '自拍交流' || v.title.includes('自拍');
         }
@@ -476,7 +476,7 @@ export default function LongVideoTab({
   };
 
   // Define section-specific video lists for the main screen feed (Image 2 & 3 style)
-  const bananaHeadlines = MOCK_LONG_VIDEOS.filter(v => v.category === '某某头条' || v.title.includes('头条'));
+  const bananaHeadlines = MOCK_LONG_VIDEOS.filter(v => v.category === '香蕉头条' || v.category === '某某头条' || v.title.includes('头条'));
   const uniformVideos = MOCK_LONG_VIDEOS.filter(v => v.category === '制服诱惑' || v.title.includes('制服'));
   const pureMaidenVideos = MOCK_LONG_VIDEOS.filter(v => v.category === '清纯校花' || v.title.includes('清纯'));
   const uncensoredVideos = MOCK_LONG_VIDEOS.filter(v => v.title.includes('无码') || v.id === 'l5');
@@ -487,7 +487,7 @@ export default function LongVideoTab({
       {/* 1. Top Navigation & App Banner */}
       <div className="bg-gradient-to-r from-brand-purple to-[#4a00e0] px-4 py-2 flex items-center justify-between text-xs sticky top-0 z-30 shadow-md">
         <div className="flex items-center gap-2">
-          <span className="text-xl">🍌</span>
+          <span className="text-xl">🔥</span>
           <div>
             <p className="font-bold text-white flex items-center gap-1">
               某某头条官方影视 <span className="text-[9px] bg-brand-gold text-black px-1.5 py-0.5 rounded font-black">PRO</span>
@@ -508,7 +508,7 @@ export default function LongVideoTab({
       <div className="p-4 pb-2 bg-brand-bg flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="text-2xl font-black bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent">某某视频</span>
-          <span className="text-[10px] uppercase font-mono tracking-wider text-gray-500 border border-neutral-800 px-1.5 rounded">Xxxx Studio</span>
+          <span className="text-[10px] uppercase font-mono tracking-wider text-gray-500 border border-neutral-800 px-1.5 rounded">Moumou Studio</span>
         </div>
         <div className="flex items-center gap-2.5">
           <button 
@@ -691,7 +691,7 @@ export default function LongVideoTab({
           {/* Ad Slot 1 (After 2 items) */}
           <div 
             onClick={() => {
-              alert('🎰 官方直营 太阳城集团 PG电子大放水！已为您模拟加赠 ¥888 游戏金币，并正在跳转至某某游戏大厅...');
+              alert('🎰 官方直营 太阳城集团 PG电子大放水！已为您模拟加赠 ¥888 游戏金币，并正在跳转至娱乐游戏大厅...');
               onUpdateWallet({ goldCoins: wallet.goldCoins + 888 });
               // Real jump/navigation!
               document.getElementById('nav-chess')?.click();
@@ -1042,7 +1042,7 @@ export default function LongVideoTab({
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 26, stiffness: 220 }}
-            className="fixed inset-y-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-brand-bg z-50 flex flex-col text-white shadow-2xl border-x border-neutral-800"
+            className="absolute inset-0 w-full bg-brand-bg z-45 flex flex-col text-white shadow-2xl pb-[60px]"
           >
             {/* Header (Back, Title, Search) */}
             <div className="flex items-center justify-between p-4 bg-[#161616] border-b border-neutral-800">
@@ -1244,7 +1244,7 @@ export default function LongVideoTab({
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
             transition={{ type: 'spring', damping: 26, stiffness: 220 }}
-            className="fixed inset-y-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-brand-bg z-50 flex flex-col text-white shadow-2xl border-x border-neutral-800"
+            className="absolute inset-0 w-full bg-brand-bg z-45 flex flex-col text-white shadow-2xl pb-[60px]"
           >
             {/* Header */}
             <div className="flex items-center justify-between p-4 bg-[#161616] border-b border-neutral-800">
@@ -1317,10 +1317,10 @@ export default function LongVideoTab({
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 26, stiffness: 220 }}
-            className="fixed inset-y-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-brand-bg z-50 flex flex-col text-white shadow-2xl border-x border-neutral-800 overflow-y-auto no-scrollbar pb-24"
+            className="absolute inset-0 w-full bg-brand-bg z-45 flex flex-col text-white shadow-2xl overflow-y-auto no-scrollbar pb-24"
           >
             {/* Header (Back, Title, Search) */}
-            <div className="flex items-center justify-between p-4 bg-[#161616] border-b border-neutral-800 sticky top-0 z-50">
+            <div className="flex items-center justify-between p-4 bg-[#161616] border-b border-neutral-800 sticky top-0 z-45">
               <button 
                 onClick={() => {
                   setShowPlayOverlay(false);

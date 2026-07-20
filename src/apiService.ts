@@ -1,5 +1,5 @@
 /**
- * Xxxx Studio / 某某视频 API Service Definition (上线级别接口适配器)
+ * Banana Studio / 香蕉视频 API Service Definition (上线级别接口适配器)
  * 
  * 本文件定义了前端与后端服务器交互的所有内容数据接口。
  * 服务器开发人员只需在此处实现真实的 axios/fetch 请求，即可将本应用完全接入后端生产数据库。
@@ -407,11 +407,11 @@ export const BananaApiService = {
 
 
   // ==========================================
-  // 4. 某某娱乐大厅与游戏大厅接口 (Games & Chess APIs)
+  // 4. 棋牌娱乐大厅与游戏大厅接口 (Games & Chess APIs)
   // ==========================================
 
   /**
-   * 获取某某游戏分类及列表
+   * 获取棋牌游戏分类及列表
    * API: GET /api/chess/list
    */
   async getChessGames(category: string): Promise<ApiResponse<ChessGameItem[]>> {
@@ -429,7 +429,7 @@ export const BananaApiService = {
   },
 
   /**
-   * 游戏/某某中奖实时播报轮播
+   * 游戏/棋牌中奖实时播报轮播
    * API: GET /api/games/winners
    */
   async getWinnerAnnouncements(): Promise<ApiResponse<WinnerAnnouncement[]>> {

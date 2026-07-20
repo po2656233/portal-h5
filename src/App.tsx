@@ -1,27 +1,15 @@
-import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { UserProfile, UserWallet } from './types';
-
-const LongVideoTab = lazy(() => import('./components/LongVideoTab'));
-const ShortVideoTab = lazy(() => import('./components/ShortVideoTab'));
-const LoufengTab = lazy(() => import('./components/LoufengTab'));
-const ChessTab = lazy(() => import('./components/ChessTab'));
-const ProfileTab = lazy(() => import('./components/ProfileTab'));
-const TopUpModal = lazy(() => import('./components/TopUpModal'));
-const AiUnclotheModal = lazy(() => import('./components/AiUnclotheModal'));
-const CustomerServiceModal = lazy(() => import('./components/CustomerServiceModal'));
-
-const TabPanelFallback = () => (
-  <div className="flex-1 bg-[#121212] p-4 space-y-3">
-    <div className="h-10 rounded-xl bg-neutral-800/80" />
-    <div className="grid grid-cols-2 gap-3">
-      <div className="h-24 rounded-2xl bg-neutral-800/80" />
-      <div className="h-24 rounded-2xl bg-neutral-800/80" />
-    </div>
-    <div className="h-16 rounded-2xl bg-neutral-800/80" />
-    <div className="h-16 rounded-2xl bg-neutral-800/80" />
-    <div className="h-16 rounded-2xl bg-neutral-800/80" />
-  </div>
-);
+import LongVideoTab from './components/LongVideoTab';
+import ShortVideoTab from './components/ShortVideoTab';
+import LoufengTab from './components/LoufengTab';
+import ChessTab from './components/ChessTab';
+import ProfileTab from './components/ProfileTab';
+import TopUpModal from './components/TopUpModal';
+import AiUnclotheModal from './components/AiUnclotheModal';
+import CustomerServiceModal from './components/CustomerServiceModal';
+import { Film, PlayCircle, BookOpen, Gamepad2, User, Gift, Coins, Ticket, Sparkles, AlertCircle, HelpCircle, Info, Star, Venus } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 export default function App() {
   // Global State for the Demo User Profile & Wallet
@@ -46,13 +34,6 @@ export default function App() {
   });
 
   const [activeTab, setActiveTab] = useState<'long' | 'short' | 'games' | 'chess' | 'profile'>('long');
-  const [isTabContentReady, setIsTabContentReady] = useState(false);
-
-  useEffect(() => {
-    setIsTabContentReady(false);
-    const timer = window.setTimeout(() => setIsTabContentReady(true), 140);
-    return () => window.clearTimeout(timer);
-  }, [activeTab]);
 
   // Fullscreen tracking states for tabs
   const [fullscreenStates, setFullscreenStates] = useState<{ [key: string]: boolean }>({
@@ -141,7 +122,7 @@ export default function App() {
     // Global override of standard window.alert!
     window.alert = (message) => {
       // Attempt to extract title/rewards indicators
-      let title = '🍌 某某社区通知';
+      let title = '🎬 某某社区通知';
       if (message.includes('🎉') || message.includes('💰') || message.includes('🔥') || message.includes('🎰') || message.includes('👑')) {
         title = '🎉 恭喜获得福利';
       } else if (message.includes('⚠️') || message.includes('❌') || message.includes('🔒')) {
@@ -186,107 +167,77 @@ export default function App() {
     <div className="h-screen h-[100dvh] md:min-h-screen bg-[#121212] flex items-center justify-center font-sans antialiased text-white selection:bg-brand-purple selection:text-white overflow-hidden">
       
       {/* Mobile-first simulated center frame wrapper with Geometric Balance solid borders */}
-      <div className="w-full max-w-md h-screen h-[100dvh] max-h-screen max-h-[100dvh] md:h-[850px] md:min-h-[850px] md:max-h-[850px] bg-brand-bg shadow-2xl relative flex flex-col justify-between overflow-hidden border-x border-neutral-800 md:border-4 md:border-neutral-800 md:rounded-[32px]">
+      <div className="w-full max-w-md h-screen h-[100dvh] max-h-screen max-h-[100dvh] md:h-[850px] md:max-h-[94vh] bg-brand-bg shadow-2xl relative flex flex-col justify-between overflow-hidden border-x border-neutral-800 md:border-4 md:border-neutral-800 md:rounded-[32px]">
         
         {/* Dynamic Main App Tab Content Area */}
         <div className="flex-1 flex flex-col overflow-hidden relative">
           <div className={activeTab === 'long' ? 'flex-1 flex flex-col overflow-hidden relative' : 'hidden'}>
-            {isTabContentReady ? (
-              <Suspense fallback={<TabPanelFallback />}>
-                <LongVideoTab 
-                  profile={profile} 
-                  wallet={wallet} 
-                  onUpdateWallet={handleUpdateWallet} 
-                  onUpdateProfile={handleUpdateProfile} 
-                  onOpenTopup={handleOpenTopup}
-                  onOpenAiScanner={() => setIsAiScannerOpen(true)}
-                  onFullscreenChange={handleLongFullscreenChange}
-                />
-              </Suspense>
-            ) : (
-              <TabPanelFallback />
-            )}
+            <LongVideoTab 
+              profile={profile} 
+              wallet={wallet} 
+              onUpdateWallet={handleUpdateWallet} 
+              onUpdateProfile={handleUpdateProfile} 
+              onOpenTopup={handleOpenTopup}
+              onOpenAiScanner={() => setIsAiScannerOpen(true)}
+              onFullscreenChange={handleLongFullscreenChange}
+            />
           </div>
 
           <div className={activeTab === 'short' ? 'flex-1 flex flex-col overflow-hidden relative' : 'hidden'}>
-            {isTabContentReady ? (
-              <Suspense fallback={<TabPanelFallback />}>
-                <ShortVideoTab 
-                  profile={profile} 
-                  wallet={wallet} 
-                  onUpdateWallet={handleUpdateWallet} 
-                  onUpdateProfile={handleUpdateProfile} 
-                  onOpenTopup={handleOpenTopup}
-                  onFullscreenChange={handleShortFullscreenChange}
-                />
-              </Suspense>
-            ) : (
-              <TabPanelFallback />
-            )}
+            <ShortVideoTab 
+              profile={profile} 
+              wallet={wallet} 
+              onUpdateWallet={handleUpdateWallet} 
+              onUpdateProfile={handleUpdateProfile} 
+              onOpenTopup={handleOpenTopup}
+              onFullscreenChange={handleShortFullscreenChange}
+            />
           </div>
 
           <div className={activeTab === 'games' ? 'flex-1 flex flex-col overflow-hidden relative' : 'hidden'}>
-            {isTabContentReady ? (
-              <Suspense fallback={<TabPanelFallback />}>
-                <LoufengTab 
-                  wallet={wallet} 
-                  profile={profile} 
-                  onUpdateWallet={handleUpdateWallet} 
-                  onUpdateProfile={handleUpdateProfile} 
-                  onOpenTopup={handleOpenTopup}
-                />
-              </Suspense>
-            ) : (
-              <TabPanelFallback />
-            )}
+            <LoufengTab 
+              wallet={wallet} 
+              profile={profile} 
+              onUpdateWallet={handleUpdateWallet} 
+              onUpdateProfile={handleUpdateProfile} 
+              onOpenTopup={handleOpenTopup}
+            />
           </div>
 
-          <div className={activeTab === 'chess' ? 'flex-1 flex flex-col overflow-hidden relative' : 'hidden'}>
-            {isTabContentReady ? (
-              <Suspense fallback={<TabPanelFallback />}>
-                <ChessTab 
-                  wallet={wallet} 
-                  profile={profile} 
-                  onUpdateWallet={handleUpdateWallet} 
-                  onUpdateProfile={handleUpdateProfile} 
-                  onOpenTopup={handleOpenTopup}
-                  onOpenCustomerService={() => setIsCustomerServiceOpen(true)}
-                />
-              </Suspense>
-            ) : (
-              <TabPanelFallback />
-            )}
+          <div className={activeTab === 'chess' ? 'flex-1 flex flex-col overflow-hidden relative pb-[60px] bg-[#121212]' : 'hidden'}>
+            <ChessTab 
+              wallet={wallet} 
+              profile={profile} 
+              onUpdateWallet={handleUpdateWallet} 
+              onUpdateProfile={handleUpdateProfile} 
+              onOpenTopup={handleOpenTopup}
+              onOpenCustomerService={() => setIsCustomerServiceOpen(true)}
+            />
           </div>
 
           <div className={activeTab === 'profile' ? 'flex-1 flex flex-col overflow-hidden relative' : 'hidden'}>
-            {isTabContentReady ? (
-              <Suspense fallback={<TabPanelFallback />}>
-                <ProfileTab 
-                  profile={profile} 
-                  wallet={wallet} 
-                  onUpdateWallet={handleUpdateWallet} 
-                  onUpdateProfile={handleUpdateProfile} 
-                  onOpenTopup={handleOpenTopup}
-                  onOpenAiScanner={() => setIsAiScannerOpen(true)}
-                  onOpenCustomerService={() => setIsCustomerServiceOpen(true)}
-                />
-              </Suspense>
-            ) : (
-              <TabPanelFallback />
-            )}
+            <ProfileTab 
+              profile={profile} 
+              wallet={wallet} 
+              onUpdateWallet={handleUpdateWallet} 
+              onUpdateProfile={handleUpdateProfile} 
+              onOpenTopup={handleOpenTopup}
+              onOpenAiScanner={() => setIsAiScannerOpen(true)}
+              onOpenCustomerService={() => setIsCustomerServiceOpen(true)}
+            />
           </div>
         </div>
 
         {/* FIXED BOTTOM NAVIGATION BAR */}
         {!isAnyFullscreen && (
-          <nav className="absolute bottom-0 inset-x-0 bg-[#161616]/95 backdrop-blur-md border-t border-neutral-800 py-2.5 px-3 flex items-center justify-around z-40 text-brand-gray">
+          <nav className="absolute bottom-0 inset-x-0 bg-[#161616]/95 backdrop-blur-md border-t border-neutral-800 py-2.5 px-3 flex items-center justify-around z-50 text-brand-gray">
             
             <button
               id="nav-long-video"
               onClick={() => setActiveTab('long')}
               className={`flex flex-col items-center gap-1 py-1 px-3 transition-all relative ${activeTab === 'long' ? 'text-white font-bold' : 'hover:text-gray-200'}`}
             >
-              <span className={`text-base ${activeTab === 'long' ? 'text-brand-purple scale-110' : ''} transition-transform`}>🎬</span>
+              <Film className={`w-5 h-5 ${activeTab === 'long' ? 'text-brand-purple scale-110' : ''} transition-transform`} />
               <span className="text-[10px]">长视频</span>
               {activeTab === 'long' && (
                 <span className="absolute bottom-0 w-4 h-0.5 bg-brand-purple rounded-full"></span>
@@ -298,7 +249,7 @@ export default function App() {
               onClick={() => setActiveTab('short')}
               className={`flex flex-col items-center gap-1 py-1 px-3 transition-all relative ${activeTab === 'short' ? 'text-white font-bold' : 'hover:text-gray-200'}`}
             >
-              <span className={`text-base ${activeTab === 'short' ? 'text-brand-purple scale-110' : ''} transition-transform`}>▶️</span>
+              <PlayCircle className={`w-5 h-5 ${activeTab === 'short' ? 'text-brand-purple scale-110' : ''} transition-transform`} />
               <span className="text-[10px]">短视频</span>
               {activeTab === 'short' && (
                 <span className="absolute bottom-0 w-4 h-0.5 bg-brand-purple rounded-full"></span>
@@ -310,7 +261,7 @@ export default function App() {
               onClick={() => setActiveTab('games')}
               className={`flex flex-col items-center gap-1 py-1 px-3 transition-all relative ${activeTab === 'games' ? 'text-white font-bold' : 'hover:text-gray-200'}`}
             >
-              <span className={`text-base ${activeTab === 'games' ? 'text-brand-purple scale-110' : ''} transition-transform`}>🧭</span>
+              <Venus className={`w-5 h-5 ${activeTab === 'games' ? 'text-brand-purple scale-110' : ''} transition-transform`} />
               <span className="text-[10px]">楼凤</span>
               {activeTab === 'games' && (
                 <span className="absolute bottom-0 w-4 h-0.5 bg-brand-purple rounded-full"></span>
@@ -322,7 +273,7 @@ export default function App() {
               onClick={() => setActiveTab('chess')}
               className={`flex flex-col items-center gap-1 py-1 px-3 transition-all relative ${activeTab === 'chess' ? 'text-white font-bold' : 'hover:text-gray-200'}`}
             >
-              <span className={`text-base ${activeTab === 'chess' ? 'text-brand-purple scale-110' : ''} transition-transform`}>🎮</span>
+              <Gamepad2 className={`w-5 h-5 ${activeTab === 'chess' ? 'text-brand-purple scale-110' : ''} transition-transform`} />
               <span className="text-[10px]">引流页</span>
               {activeTab === 'chess' && (
                 <span className="absolute bottom-0 w-4 h-0.5 bg-brand-purple rounded-full"></span>
@@ -334,7 +285,7 @@ export default function App() {
               onClick={() => setActiveTab('profile')}
               className={`flex flex-col items-center gap-1 py-1 px-3 transition-all relative ${activeTab === 'profile' ? 'text-white font-bold' : 'hover:text-gray-200'}`}
             >
-              <span className={`text-base ${activeTab === 'profile' ? 'text-brand-purple scale-110' : ''} transition-transform`}>👤</span>
+              <User className={`w-5 h-5 ${activeTab === 'profile' ? 'text-brand-purple scale-110' : ''} transition-transform`} />
               <span className="text-[10px]">我的</span>
               {activeTab === 'profile' && (
                 <span className="absolute bottom-0 w-4 h-0.5 bg-brand-purple rounded-full"></span>
@@ -345,52 +296,51 @@ export default function App() {
         )}
 
         {/* COMBINED MODAL TRANSACTION SYSTEM */}
-        {isTopUpOpen && (
-          <Suspense fallback={null}>
-            <TopUpModal 
-              isOpen={isTopUpOpen} 
-              onClose={() => setIsTopUpOpen(false)}
-              tabType={topUpTabType}
-              profile={profile}
-              wallet={wallet}
-              onUpdateWallet={handleUpdateWallet}
-              onUpdateProfile={handleUpdateProfile}
-            />
-          </Suspense>
-        )}
+        <TopUpModal 
+          isOpen={isTopUpOpen} 
+          onClose={() => setIsTopUpOpen(false)}
+          tabType={topUpTabType}
+          profile={profile}
+          wallet={wallet}
+          onUpdateWallet={handleUpdateWallet}
+          onUpdateProfile={handleUpdateProfile}
+        />
 
         {/* AI SMART CLOTHES SCANNER MODAL */}
-        {isAiScannerOpen && (
-          <Suspense fallback={null}>
-            <AiUnclotheModal 
-              isOpen={isAiScannerOpen}
-              onClose={() => setIsAiScannerOpen(false)}
-              profile={profile}
-              wallet={wallet}
-              onUpdateWallet={handleUpdateWallet}
-              onUpdateProfile={handleUpdateProfile}
-              onOpenTopup={handleOpenTopup}
-            />
-          </Suspense>
-        )}
+        <AiUnclotheModal 
+          isOpen={isAiScannerOpen}
+          onClose={() => setIsAiScannerOpen(false)}
+          profile={profile}
+          wallet={wallet}
+          onUpdateWallet={handleUpdateWallet}
+          onUpdateProfile={handleUpdateProfile}
+          onOpenTopup={handleOpenTopup}
+        />
 
-        {isCustomerServiceOpen && (
-          <Suspense fallback={null}>
-            <CustomerServiceModal 
-              isOpen={isCustomerServiceOpen}
-              onClose={() => setIsCustomerServiceOpen(false)}
-              username={profile.username}
-            />
-          </Suspense>
-        )}
+        <CustomerServiceModal 
+          isOpen={isCustomerServiceOpen}
+          onClose={() => setIsCustomerServiceOpen(false)}
+          username={profile.username}
+        />
 
         {/* CUSTOM GLOBAL POPUP DIALOGS (INTERNAL & BEAUTIFIED) */}
-        {dialog && dialog.isOpen && (
-          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-            <div className="w-full max-w-xs rounded-2xl bg-[#161616] border border-neutral-800 p-5 text-white space-y-4 shadow-2xl relative overflow-hidden">
+        <AnimatePresence>
+          {dialog && dialog.isOpen && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            >
+              <motion.div 
+                initial={{ scale: 0.95, y: 15 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.95, y: 15 }}
+                className="w-full max-w-xs rounded-2xl bg-[#161616] border border-neutral-800 p-5 text-white space-y-4 shadow-2xl relative overflow-hidden"
+              >
                 {/* Visual Highlights based on dialog type */}
                 {dialog.type === 'reward' && (
-                  <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400" />
+                  <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 animate-pulse" />
                 )}
                 {dialog.type === 'alert' && (
                   <div className="absolute top-0 inset-x-0 h-1 bg-brand-purple" />
@@ -402,13 +352,13 @@ export default function App() {
                 {/* Title */}
                 <div className="flex items-center gap-2 border-b border-neutral-800 pb-2">
                   {dialog.type === 'reward' ? (
-                    <span className="text-sm">🎁</span>
+                    <Gift className="w-4 h-4 text-yellow-500 animate-bounce" />
                   ) : dialog.type === 'confirm' ? (
-                    <span className="text-sm">❓</span>
+                    <HelpCircle className="w-4 h-4 text-brand-gold" />
                   ) : dialog.type === 'prompt' ? (
-                    <span className="text-sm">✨</span>
+                    <Sparkles className="w-4 h-4 text-brand-purple" />
                   ) : (
-                    <span className="text-sm">ℹ️</span>
+                    <Info className="w-4 h-4 text-brand-purple" />
                   )}
                   <h3 className="font-extrabold text-[10px] uppercase tracking-wider text-gray-200">
                     {dialog.title}
@@ -425,19 +375,19 @@ export default function App() {
                   <div className="p-2.5 bg-neutral-900 rounded-xl border border-neutral-800 grid grid-cols-2 gap-2 text-center">
                     {dialog.rewards.coins && (
                       <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-2 flex flex-col items-center">
-                        <span className="text-sm mb-1">🪙</span>
+                        <Coins className="w-4 h-4 text-amber-400 mb-1" />
                         <span className="text-[9px] text-amber-400 font-bold">+{dialog.rewards.coins} 金币</span>
                       </div>
                     )}
                     {dialog.rewards.tickets && (
                       <div className="bg-brand-purple/10 border border-brand-purple/20 rounded-lg p-2 flex flex-col items-center">
-                        <span className="text-sm mb-1">🎟️</span>
+                        <Ticket className="w-4 h-4 text-brand-purple mb-1" />
                         <span className="text-[9px] text-brand-purple font-bold">+{dialog.rewards.tickets} 短剧券</span>
                       </div>
                     )}
                     {dialog.rewards.movieTickets && (
                       <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-2 flex flex-col items-center col-span-2">
-                        <span className="text-sm mb-1">🎬</span>
+                        <Film className="w-4 h-4 text-emerald-400 mb-1" />
                         <span className="text-[9px] text-emerald-400 font-bold">+{dialog.rewards.movieTickets} 长视频券</span>
                       </div>
                     )}
@@ -486,9 +436,10 @@ export default function App() {
                     {dialog.type === 'reward' ? '金币收入囊中' : '确认'}
                   </button>
                 </div>
-            </div>
-          </div>
-        )}
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
       </div>
 

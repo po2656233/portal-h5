@@ -138,7 +138,7 @@ export default function SearchOverlay({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 10 }}
-        className="fixed inset-y-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-[#121214] z-50 flex flex-col text-white shadow-2xl border-x border-neutral-800"
+        className="absolute inset-0 w-full bg-[#121214] z-45 flex flex-col text-white shadow-2xl pb-[60px]"
       >
         {/* Figure 1 Top Search Bar Header */}
         <div className="p-3 bg-[#1e1e21] border-b border-neutral-800 flex items-center gap-2 shrink-0">
@@ -212,7 +212,7 @@ export default function SearchOverlay({
         </div>
 
         {/* Search Body area */}
-        <div className="flex-1 overflow-y-auto no-scrollbar p-4 space-y-5">
+        <div className="flex-1 overflow-y-auto no-scrollbar p-4 space-y-5 pb-24">
           {/* 猜你喜欢 Section */}
           <div className="space-y-2.5">
             <h3 className="text-sm font-extrabold text-white flex items-center gap-1.5">
@@ -340,6 +340,7 @@ export default function SearchOverlay({
                         alt={video.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         referrerPolicy="no-referrer"
+                        loading="lazy"
                       />
                       <span className="absolute bottom-1 right-1 bg-black/75 px-1 py-0.2 rounded text-[8px] font-mono">
                         {video.duration}
@@ -384,6 +385,7 @@ export default function SearchOverlay({
                       alt={video.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       referrerPolicy="no-referrer"
+                      loading="lazy"
                     />
                     <span className="absolute bottom-1.5 right-1.5 bg-black/60 px-1 py-0.2 rounded text-[8px] font-mono">
                       {video.duration || '0:30'}

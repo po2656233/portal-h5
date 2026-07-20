@@ -387,10 +387,10 @@ export default function LoufengTab({
           </div>
           <div>
             <h1 className="text-sm font-black text-white tracking-wide flex items-center gap-1.5">
-              <span>楼凤专区</span>
+              <span>楼凤社区</span>
               <span className="bg-gradient-to-r from-amber-400 to-yellow-500 text-black text-[7px] px-1.5 py-0.2 rounded font-black scale-90">VIP专栏</span>
             </h1>
-            <p className="text-[8px] text-pink-500 font-mono uppercase tracking-wider">Lifestyle</p>
+            <p className="text-[8px] text-pink-500 font-mono uppercase tracking-wider">Loufeng Companion Community</p>
           </div>
         </div>
 
@@ -533,6 +533,7 @@ export default function LoufengTab({
                       alt={girl.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       referrerPolicy="no-referrer"
+                      loading="lazy"
                     />
 
                     {/* VIP Only Marker */}
@@ -670,6 +671,7 @@ export default function LoufengTab({
                   alt={selectedGirl.name}
                   className="w-full h-full object-cover select-none"
                   referrerPolicy="no-referrer"
+                  loading="lazy"
                 />
 
                 {/* Picture type Switcher Tabs overlay */}

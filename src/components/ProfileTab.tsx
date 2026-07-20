@@ -246,241 +246,255 @@ export default function ProfileTab({
       
       {/* Dynamic Login & Registration Panel Overlay */}
       {showLoginPanel && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
-          <div className="w-full max-w-sm rounded-3xl bg-brand-bg border border-brand-purple/20 p-5 text-white space-y-4 shadow-2xl relative">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="w-full max-w-sm rounded-3xl bg-[#121214] border border-neutral-800/80 text-white flex flex-col max-h-[85vh] shadow-2xl relative overflow-hidden ring-1 ring-brand-purple/20">
             
-            {/* Header Identity */}
-            <div className="text-center">
-              <div className="w-12 h-12 bg-brand-purple/15 rounded-full flex items-center justify-center mx-auto mb-2 border border-brand-purple/25 animate-pulse">
-                <span className="text-2xl">🍌</span>
+            {/* Header Area (Fixed) */}
+            <div className="p-5 pb-3 border-b border-neutral-800/60 text-center shrink-0 bg-gradient-to-b from-neutral-900/60 to-transparent">
+              {/* Premium Glowing Logo */}
+              <div className="relative w-14 h-14 mx-auto mb-2.5">
+                {/* Glowing Background Glows */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-pink-500 via-purple-600 to-amber-400 rounded-2xl blur-md opacity-70 animate-pulse"></div>
+                {/* Solid inner badge */}
+                <div className="absolute inset-0.5 bg-[#16161a] rounded-2xl border border-white/10 flex items-center justify-center shadow-inner">
+                  <span className="text-3xl filter drop-shadow-[0_0_8px_rgba(236,72,153,0.5)]">🔥</span>
+                </div>
               </div>
-              <h3 className="text-sm font-black text-brand-gold">某某成人社区</h3>
-              <p className="text-[9px] text-gray-400 mt-1">老司机专属的高清视频、漫画与精品游戏大厅</p>
-            </div>
-
-            {/* MAIN AUTHENTICATION MODE TABS (LOGIN VS REGISTER) */}
-            <div className="grid grid-cols-2 p-1 bg-brand-card rounded-xl border border-neutral-800">
-              <button
-                type="button"
-                onClick={() => {
-                  setAuthMode('login');
-                  setPasswordInput('');
-                  setConfirmPasswordInput('');
-                }}
-                className={`py-1.5 text-[10px] font-black rounded-lg transition-all ${
-                  authMode === 'login' 
-                    ? 'bg-brand-purple text-white shadow-md' 
-                    : 'text-gray-400 hover:text-white'
-                }`}
-              >
-                账号登录
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setAuthMode('register');
-                  setPasswordInput('');
-                  setConfirmPasswordInput('');
-                }}
-                className={`py-1.5 text-[10px] font-black rounded-lg transition-all ${
-                  authMode === 'register' 
-                    ? 'bg-brand-purple text-white shadow-md' 
-                    : 'text-gray-400 hover:text-white'
-                }`}
-              >
-                极速注册
-              </button>
-            </div>
-
-            {/* THREE DETAILED AUTH CHANNELS SUB-TABS */}
-            <div className="flex items-center justify-between gap-1 p-1 bg-[#1a1a1a] rounded-xl border border-neutral-800/80">
-              <button
-                type="button"
-                onClick={() => setAuthTab('account')}
-                className={`flex-1 py-1 px-2 flex items-center justify-center gap-1 text-[9px] font-bold rounded-lg transition-all ${
-                  authTab === 'account' ? 'bg-neutral-800 text-brand-gold' : 'text-gray-400 hover:text-gray-200'
-                }`}
-              >
-                <User className="w-3 h-3" />
-                <span>账号</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setAuthTab('email')}
-                className={`flex-1 py-1 px-2 flex items-center justify-center gap-1 text-[9px] font-bold rounded-lg transition-all ${
-                  authTab === 'email' ? 'bg-neutral-800 text-brand-gold' : 'text-gray-400 hover:text-gray-200'
-                }`}
-              >
-                <Mail className="w-3 h-3" />
-                <span>邮箱</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setAuthTab('phone')}
-                className={`flex-1 py-1 px-2 flex items-center justify-center gap-1 text-[9px] font-bold rounded-lg transition-all ${
-                  authTab === 'phone' ? 'bg-neutral-800 text-brand-gold' : 'text-gray-400 hover:text-gray-200'
-                }`}
-              >
-                <Smartphone className="w-3 h-3" />
-                <span>手机号</span>
-              </button>
-            </div>
-
-            {/* FORM CONTAINER */}
-            <form onSubmit={handleAuthSubmit} className="space-y-3.5 pt-1">
               
-              {/* Username Input (Only when using Account channel) */}
-              {authTab === 'account' && (
-                <div className="space-y-1">
-                  <label className="text-[9px] text-gray-400 flex items-center gap-1">
-                    <User className="w-2.5 h-2.5 text-brand-purple" />
-                    <span>自定义登录用户名 / ID</span>
-                  </label>
-                  <input 
-                    type="text" 
-                    placeholder="请输入 4-16 位字母、数字或中文昵称" 
-                    value={usernameInput}
-                    onChange={(e) => setUsernameInput(e.target.value)}
-                    required
-                    className="w-full px-3.5 py-2 rounded-xl bg-[#141414] border border-neutral-800 focus:border-brand-purple focus:outline-none text-xs text-white placeholder:text-gray-600"
-                  />
-                </div>
-              )}
+              <h3 className="text-base font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-neutral-100 to-gray-300">
+                某某视频平台
+              </h3>
+              <p className="text-[9px] text-brand-gold font-bold mt-1 tracking-widest uppercase">Premium Cinema Portal</p>
+            </div>
 
-              {/* Email Input (Only when using Email channel) */}
-              {authTab === 'email' && (
-                <div className="space-y-1">
-                  <label className="text-[9px] text-gray-400 flex items-center gap-1">
-                    <Mail className="w-2.5 h-2.5 text-brand-purple" />
-                    <span>电子邮箱地址</span>
-                  </label>
-                  <input 
-                    type="email" 
-                    placeholder="请输入有效的邮箱，例如 name@example.com" 
-                    value={emailInput}
-                    onChange={(e) => setEmailInput(e.target.value)}
-                    required
-                    className="w-full px-3.5 py-2 rounded-xl bg-[#141414] border border-neutral-800 focus:border-brand-purple focus:outline-none text-xs text-white placeholder:text-gray-600"
-                  />
-                </div>
-              )}
+            {/* Scrollable Content Area */}
+            <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4 no-scrollbar">
+              
+              {/* MAIN AUTHENTICATION MODE TABS (LOGIN VS REGISTER) */}
+              <div className="grid grid-cols-2 p-1 bg-neutral-950 rounded-xl border border-neutral-800/80">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAuthMode('login');
+                    setPasswordInput('');
+                    setConfirmPasswordInput('');
+                  }}
+                  className={`py-2 text-[10px] font-black rounded-lg transition-all flex items-center justify-center gap-1 ${
+                    authMode === 'login' 
+                      ? 'bg-gradient-to-r from-brand-purple to-purple-600 text-white shadow-lg' 
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  <span>账号登录</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAuthMode('register');
+                    setPasswordInput('');
+                    setConfirmPasswordInput('');
+                  }}
+                  className={`py-2 text-[10px] font-black rounded-lg transition-all flex items-center justify-center gap-1 ${
+                    authMode === 'register' 
+                      ? 'bg-gradient-to-r from-brand-purple to-purple-600 text-white shadow-lg' 
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  <span>极速注册</span>
+                </button>
+              </div>
 
-              {/* Phone Input (Only when using Phone channel) */}
-              {authTab === 'phone' && (
-                <div className="space-y-1">
-                  <label className="text-[9px] text-gray-400 flex items-center gap-1">
-                    <Smartphone className="w-2.5 h-2.5 text-brand-purple" />
-                    <span>手机号码 (国内/国际)</span>
-                  </label>
-                  <div className="flex gap-1.5">
-                    <span className="bg-[#141414] border border-neutral-800 text-xs px-2.5 py-2 rounded-xl text-brand-gold font-bold flex items-center justify-center">+86</span>
+              {/* THREE DETAILED AUTH CHANNELS SUB-TABS */}
+              <div className="flex items-center justify-between gap-1 p-1 bg-neutral-950 rounded-xl border border-neutral-800/60">
+                <button
+                  type="button"
+                  onClick={() => setAuthTab('account')}
+                  className={`flex-1 py-1.5 px-2 flex items-center justify-center gap-1 text-[9px] font-bold rounded-lg transition-all ${
+                    authTab === 'account' ? 'bg-neutral-800 text-brand-gold border border-neutral-700/50' : 'text-gray-400 hover:text-gray-200'
+                  }`}
+                >
+                  <User className="w-3 h-3 text-brand-gold" />
+                  <span>账号</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAuthTab('email')}
+                  className={`flex-1 py-1.5 px-2 flex items-center justify-center gap-1 text-[9px] font-bold rounded-lg transition-all ${
+                    authTab === 'email' ? 'bg-neutral-800 text-brand-gold border border-neutral-700/50' : 'text-gray-400 hover:text-gray-200'
+                  }`}
+                >
+                  <Mail className="w-3 h-3 text-brand-gold" />
+                  <span>邮箱</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAuthTab('phone')}
+                  className={`flex-1 py-1.5 px-2 flex items-center justify-center gap-1 text-[9px] font-bold rounded-lg transition-all ${
+                    authTab === 'phone' ? 'bg-neutral-800 text-brand-gold border border-neutral-700/50' : 'text-gray-400 hover:text-gray-200'
+                  }`}
+                >
+                  <Smartphone className="w-3 h-3 text-brand-gold" />
+                  <span>手机号</span>
+                </button>
+              </div>
+
+              {/* FORM CONTAINER */}
+              <form onSubmit={handleAuthSubmit} className="space-y-4 pt-1">
+                
+                {/* Username Input (Only when using Account channel) */}
+                {authTab === 'account' && (
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-gray-400 flex items-center gap-1">
+                      <User className="w-2.5 h-2.5 text-brand-purple" />
+                      <span>自定义登录用户名 / ID</span>
+                    </label>
                     <input 
-                      type="tel" 
-                      placeholder="请填写11位手机号码" 
-                      value={phoneInput}
-                      onChange={(e) => setPhoneInput(e.target.value)}
+                      type="text" 
+                      placeholder="请输入 4-16 位字母、数字或中文昵称" 
+                      value={usernameInput}
+                      onChange={(e) => setUsernameInput(e.target.value)}
                       required
-                      className="flex-1 px-3.5 py-2 rounded-xl bg-[#141414] border border-neutral-800 focus:border-brand-purple focus:outline-none text-xs text-white placeholder:text-gray-600"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-950 border border-neutral-800 focus:border-brand-purple focus:outline-none text-xs text-white placeholder:text-gray-600 transition-all focus:ring-1 focus:ring-brand-purple/30"
                     />
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Password Input (Required for all channels) */}
-              <div className="space-y-1">
-                <label className="text-[9px] text-gray-400 flex items-center gap-1">
-                  <Lock className="w-2.5 h-2.5 text-brand-purple" />
-                  <span>账户安全密码</span>
-                </label>
-                <input 
-                  type="password" 
-                  placeholder="请输入您的安全访问密码" 
-                  value={passwordInput}
-                  onChange={(e) => setPasswordInput(e.target.value)}
-                  required
-                  className="w-full px-3.5 py-2 rounded-xl bg-[#141414] border border-neutral-800 focus:border-brand-purple focus:outline-none text-xs text-white placeholder:text-gray-600"
-                />
-              </div>
+                {/* Email Input (Only when using Email channel) */}
+                {authTab === 'email' && (
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-gray-400 flex items-center gap-1">
+                      <Mail className="w-2.5 h-2.5 text-brand-purple" />
+                      <span>电子邮箱地址</span>
+                    </label>
+                    <input 
+                      type="email" 
+                      placeholder="请输入有效的邮箱，例如 name@example.com" 
+                      value={emailInput}
+                      onChange={(e) => setEmailInput(e.target.value)}
+                      required
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-950 border border-neutral-800 focus:border-brand-purple focus:outline-none text-xs text-white placeholder:text-gray-600 transition-all focus:ring-1 focus:ring-brand-purple/30"
+                    />
+                  </div>
+                )}
 
-              {/* Repeat Password (Only in Registration Mode) */}
-              {authMode === 'register' && (
+                {/* Phone Input (Only when using Phone channel) */}
+                {authTab === 'phone' && (
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-gray-400 flex items-center gap-1">
+                      <Smartphone className="w-2.5 h-2.5 text-brand-purple" />
+                      <span>手机号码 (国内/国际)</span>
+                    </label>
+                    <div className="flex gap-1.5">
+                      <span className="bg-neutral-950 border border-neutral-800 text-xs px-2.5 py-2 rounded-xl text-brand-gold font-bold flex items-center justify-center shrink-0">+86</span>
+                      <input 
+                        type="tel" 
+                        placeholder="请填写11位手机号码" 
+                        value={phoneInput}
+                        onChange={(e) => setPhoneInput(e.target.value)}
+                        required
+                        className="flex-1 px-3.5 py-2.5 rounded-xl bg-neutral-950 border border-neutral-800 focus:border-brand-purple focus:outline-none text-xs text-white placeholder:text-gray-600 transition-all focus:ring-1 focus:ring-brand-purple/30"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Password Input (Required for all channels) */}
                 <div className="space-y-1">
                   <label className="text-[9px] text-gray-400 flex items-center gap-1">
-                    <CheckSquare className="w-2.5 h-2.5 text-brand-purple" />
-                    <span>确认安全密码</span>
+                    <Lock className="w-2.5 h-2.5 text-brand-purple" />
+                    <span>账户安全密码</span>
                   </label>
                   <input 
                     type="password" 
-                    placeholder="请再次确认并输入密码" 
-                    value={confirmPasswordInput}
-                    onChange={(e) => setConfirmPasswordInput(e.target.value)}
+                    placeholder="请输入您的安全访问密码" 
+                    value={passwordInput}
+                    onChange={(e) => setPasswordInput(e.target.value)}
                     required
-                    className="w-full px-3.5 py-2 rounded-xl bg-[#141414] border border-neutral-800 focus:border-brand-purple focus:outline-none text-xs text-white placeholder:text-gray-600"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-950 border border-neutral-800 focus:border-brand-purple focus:outline-none text-xs text-white placeholder:text-gray-600 transition-all focus:ring-1 focus:ring-brand-purple/30"
                   />
                 </div>
-              )}
 
-              {/* Verification Code field (Required for Email/Phone registration or login if needed) */}
-              {authMode === 'register' && (authTab === 'email' || authTab === 'phone') && (
-                <div className="space-y-1">
-                  <label className="text-[9px] text-gray-400">输入收到的激活验证码</label>
-                  <div className="flex gap-2">
+                {/* Repeat Password (Only in Registration Mode) */}
+                {authMode === 'register' && (
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-gray-400 flex items-center gap-1">
+                      <CheckSquare className="w-2.5 h-2.5 text-brand-purple" />
+                      <span>确认安全密码</span>
+                    </label>
+                    <input 
+                      type="password" 
+                      placeholder="请再次确认并输入密码" 
+                      value={confirmPasswordInput}
+                      onChange={(e) => setConfirmPasswordInput(e.target.value)}
+                      required
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-950 border border-neutral-800 focus:border-brand-purple focus:outline-none text-xs text-white placeholder:text-gray-600 transition-all focus:ring-1 focus:ring-brand-purple/30"
+                    />
+                  </div>
+                )}
+
+                {/* Verification Code field (Required for Email/Phone registration or login if needed) */}
+                {authMode === 'register' && (authTab === 'email' || authTab === 'phone') && (
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-gray-400">输入收到的激活验证码</label>
+                    <div className="flex gap-2">
+                      <input 
+                        type="text" 
+                        placeholder="输入4位激活码" 
+                        value={codeInput}
+                        onChange={(e) => setCodeInput(e.target.value)}
+                        required
+                        className="flex-1 px-3.5 py-2.5 rounded-xl bg-neutral-950 border border-neutral-800 focus:border-brand-purple focus:outline-none text-xs text-white placeholder:text-gray-600 text-center font-bold tracking-widest transition-all focus:ring-1 focus:ring-brand-purple/30"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleSendCode}
+                        disabled={codeCountdown > 0}
+                        className="px-3.5 py-2 bg-neutral-900 hover:bg-neutral-800 text-brand-purple hover:text-brand-purple/90 disabled:text-gray-500 rounded-xl border border-neutral-800 text-[10px] font-bold shrink-0 transition-all"
+                      >
+                        {codeCountdown > 0 ? `${codeCountdown}s 后重试` : '获取验证码'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Invitation Code (Optional for Register mode) */}
+                {authMode === 'register' && (
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-gray-400 flex items-center gap-1">
+                      <Sparkles className="w-2.5 h-2.5 text-brand-gold animate-spin-slow" />
+                      <span>福利邀请码 (选填)</span>
+                    </label>
                     <input 
                       type="text" 
-                      placeholder="输入4位激活码" 
-                      value={codeInput}
-                      onChange={(e) => setCodeInput(e.target.value)}
-                      required
-                      className="flex-1 px-3.5 py-2 rounded-xl bg-[#141414] border border-neutral-800 focus:border-brand-purple focus:outline-none text-xs text-white placeholder:text-gray-600 text-center font-bold tracking-widest"
+                      placeholder="输入邀请码可额外获赠15天VIP" 
+                      value={inviteCodeInput}
+                      onChange={(e) => setInviteCodeInput(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-950 border border-neutral-800 text-xs text-white focus:outline-none placeholder:text-gray-600 text-center tracking-wider focus:border-brand-gold/50"
                     />
-                    <button
-                      type="button"
-                      onClick={handleSendCode}
-                      disabled={codeCountdown > 0}
-                      className="px-3.5 py-2 bg-neutral-800 hover:bg-neutral-750 text-brand-purple hover:text-brand-purple/90 disabled:text-gray-500 rounded-xl border border-neutral-800 text-[10px] font-bold shrink-0 transition-all"
-                    >
-                      {codeCountdown > 0 ? `${codeCountdown}s 后重试` : '获取验证码'}
-                    </button>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Invitation Code (Optional for Register mode) */}
-              {authMode === 'register' && (
-                <div className="space-y-1">
-                  <label className="text-[9px] text-gray-400 flex items-center gap-1">
-                    <Sparkles className="w-2.5 h-2.5 text-brand-gold animate-spin-slow" />
-                    <span>福利邀请码 (选填)</span>
-                  </label>
-                  <input 
-                    type="text" 
-                    placeholder="输入 BANANA66 可额外获赠15天VIP" 
-                    value={inviteCodeInput}
-                    onChange={(e) => setInviteCodeInput(e.target.value)}
-                    className="w-full px-3.5 py-2 rounded-xl bg-[#141414] border border-neutral-800 text-xs text-white focus:outline-none placeholder:text-gray-600 text-center tracking-wider"
-                  />
-                </div>
-              )}
+                {/* Submitting Button */}
+                <button 
+                  type="submit"
+                  className="w-full py-3 rounded-xl font-black bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 text-white hover:opacity-95 active:scale-[0.98] transition-all text-xs shadow-lg shadow-brand-purple/20 flex items-center justify-center gap-1.5 mt-4"
+                >
+                  <span>{authMode === 'login' ? '🔑 立即登录账号' : '🚀 极速注册并激活权益'}</span>
+                </button>
+              </form>
+            </div>
 
-              {/* Submitting Button */}
-              <button 
-                type="submit"
-                className="w-full py-2.5 rounded-xl font-black bg-brand-gradient text-white hover:opacity-95 transition-all text-xs shadow-lg shadow-brand-purple/25 flex items-center justify-center gap-1.5 mt-4"
-              >
-                <span>{authMode === 'login' ? '🔑 立即登录账号' : '🚀 极速注册并激活权益'}</span>
-              </button>
-            </form>
-
-            {/* Footer Action */}
-            <div className="flex items-center justify-between pt-1 border-t border-neutral-800/60">
+            {/* Footer Action Area (Fixed) */}
+            <div className="p-4 bg-neutral-950/90 border-t border-neutral-800/60 flex items-center justify-between shrink-0">
               <button 
                 type="button"
                 onClick={() => {
                   setAuthMode(authMode === 'login' ? 'register' : 'login');
                   setPasswordInput('');
+                  setPasswordInput('');
                   setConfirmPasswordInput('');
                 }}
-                className="text-[9px] text-brand-gold hover:underline"
+                className="text-[9px] text-brand-gold hover:underline font-black"
               >
                 {authMode === 'login' ? '没有账号？一键极速注册' : '已有账号？返回极速登录'}
               </button>
@@ -488,7 +502,7 @@ export default function ProfileTab({
               <button 
                 type="button"
                 onClick={() => setShowLoginPanel(false)}
-                className="text-[9px] text-gray-400 hover:text-white"
+                className="text-[9px] text-gray-400 hover:text-white bg-neutral-900 px-2.5 py-1 rounded-md border border-neutral-800 transition-all"
               >
                 暂不登录
               </button>
@@ -854,13 +868,13 @@ export default function ProfileTab({
                         onUpdateWallet({ goldCoins: wallet.goldCoins + 50 });
                         alert('🎉 奖励领取成功！+50 游戏金币已送达您的资产钱包中。');
                       } else {
-                        alert('⚠️ 尚未检测到您在某某馆完成额度转换，请先完成一次转换！');
+                        alert('⚠️ 尚未检测到您在游戏大厅完成额度转换，请先完成一次转换！');
                       }
                     }},
                     { desc: '✈️ 同城寻欢匹配分享', bonus: '+500 模拟金币', status: '去匹配', action: () => {
                       navigator.clipboard.writeText(`某某社区同城寻欢定位已开启！我的邀请码为：${profile.inviteCode}`);
                       onUpdateWallet({ gameBalance: wallet.gameBalance + 500 });
-                      alert('🔗 分享文案已成功复制！额外赠送您 ￥500.00 某某模拟备用金！');
+                      alert('🔗 分享文案已成功复制！额外赠送您 ￥500.00 娱乐游戏模拟备用金！');
                     }}
                   ].map((t, idx) => (
                     <div key={idx} className="p-3 bg-brand-bg rounded-xl border border-neutral-800 flex justify-between items-center text-xs">

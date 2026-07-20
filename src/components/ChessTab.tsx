@@ -297,12 +297,12 @@ export default function ChessTab({
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-1.5">
-            <span className="text-3xl animate-bounce">🍌</span>
+            <span className="text-3xl animate-bounce">🔥</span>
             <div>
               <h1 className="text-xl font-black text-yellow-300 tracking-tight flex items-center gap-1 font-sans">
                 某某视频
               </h1>
-              <p className="text-[9px] text-white/90 uppercase font-mono tracking-wider">Xxxx Studio</p>
+              <p className="text-[9px] text-white/90 uppercase font-mono tracking-wider">Moumou Studio</p>
             </div>
           </div>
 
@@ -466,6 +466,7 @@ export default function ChessTab({
                       alt={game.name}
                       className="w-full h-full object-cover"
                       referrerPolicy="no-referrer"
+                      loading="lazy"
                     />
                     
                     {/* Floating mini badge on top left */}
@@ -509,6 +510,7 @@ export default function ChessTab({
                       alt={game.name}
                       className="w-full h-full object-cover"
                       referrerPolicy="no-referrer"
+                      loading="lazy"
                     />
                     <div className="absolute top-1 left-1 bg-blue-600 text-[8px] text-white px-1.5 py-0.5 rounded-md font-bold scale-95">
                       ⭐ 经常玩
@@ -542,6 +544,7 @@ export default function ChessTab({
                       alt={game.name}
                       className="w-full h-full object-cover"
                       referrerPolicy="no-referrer"
+                      loading="lazy"
                     />
                     <div className="absolute top-1 right-1 bg-rose-600 text-[8px] text-white px-1.5 py-0.5 rounded-md font-bold scale-90 animate-pulse">
                       🎥 LIVE
@@ -578,6 +581,7 @@ export default function ChessTab({
                       alt={sp.name}
                       className="w-full h-full object-cover"
                       referrerPolicy="no-referrer"
+                      loading="lazy"
                     />
                     <div className="absolute bottom-1 right-1 bg-black/60 text-[8px] text-white px-1.5 py-0.5 rounded font-black">
                       {sp.badge}
