@@ -1,15 +1,17 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { UserProfile, UserWallet } from './types';
-import LongVideoTab from './components/LongVideoTab';
-import ShortVideoTab from './components/ShortVideoTab';
-import LoufengTab from './components/LoufengTab';
-import ChessTab from './components/ChessTab';
-import ProfileTab from './components/ProfileTab';
-import TopUpModal from './components/TopUpModal';
-import AiUnclotheModal from './components/AiUnclotheModal';
-import CustomerServiceModal from './components/CustomerServiceModal';
 import { Film, PlayCircle, BookOpen, Gamepad2, User, Gift, Coins, Ticket, Sparkles, AlertCircle, HelpCircle, Info, Star, Venus } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+
+// Lazy load heavy page tabs and modals for peak initial bundle load efficiency
+const LongVideoTab = React.lazy(() => import('./components/LongVideoTab'));
+const ShortVideoTab = React.lazy(() => import('./components/ShortVideoTab'));
+const LoufengTab = React.lazy(() => import('./components/LoufengTab'));
+const ChessTab = React.lazy(() => import('./components/ChessTab'));
+const ProfileTab = React.lazy(() => import('./components/ProfileTab'));
+const TopUpModal = React.lazy(() => import('./components/TopUpModal'));
+const AiUnclotheModal = React.lazy(() => import('./components/AiUnclotheModal'));
+const CustomerServiceModal = React.lazy(() => import('./components/CustomerServiceModal'));
 
 export default function App() {
   // Global State for the Demo User Profile & Wallet
@@ -34,6 +36,16 @@ export default function App() {
   });
 
   const [activeTab, setActiveTab] = useState<'long' | 'short' | 'games' | 'chess' | 'profile'>('long');
+
+  // Track which tabs have been visited to enable lazy-mounting (code only downloads when tab is clicked)
+  const [visitedTabs, setVisitedTabs] = useState<Record<string, boolean>>({ long: true });
+
+  useEffect(() => {
+    setVisitedTabs((prev) => {
+      if (prev[activeTab]) return prev;
+      return { ...prev, [activeTab]: true };
+    });
+  }, [activeTab]);
 
   // Fullscreen tracking states for tabs
   const [fullscreenStates, setFullscreenStates] = useState<{ [key: string]: boolean }>({
@@ -171,61 +183,87 @@ export default function App() {
         
         {/* Dynamic Main App Tab Content Area */}
         <div className="flex-1 flex flex-col overflow-hidden relative">
-          <div className={activeTab === 'long' ? 'flex-1 flex flex-col overflow-hidden relative' : 'hidden'}>
-            <LongVideoTab 
-              profile={profile} 
-              wallet={wallet} 
-              onUpdateWallet={handleUpdateWallet} 
-              onUpdateProfile={handleUpdateProfile} 
-              onOpenTopup={handleOpenTopup}
-              onOpenAiScanner={() => setIsAiScannerOpen(true)}
-              onFullscreenChange={handleLongFullscreenChange}
-            />
-          </div>
+          <Suspense fallback={
+            <div className="flex-1 flex flex-col items-center justify-center bg-[#121212] text-gray-400">
+              <div className="flex flex-col items-center gap-3">
+                <div className="relative w-12 h-12">
+                  <div className="absolute inset-0 bg-gradient-to-tr from-pink-500 via-purple-600 to-amber-400 rounded-2xl blur-md opacity-75 animate-pulse"></div>
+                  <div className="absolute inset-0.5 bg-[#16161a] rounded-2xl border border-white/10 flex items-center justify-center">
+                    <span className="text-xl animate-bounce">🔥</span>
+                  </div>
+                </div>
+                <div className="text-[10px] tracking-widest text-brand-gold font-bold uppercase animate-pulse">
+                  加载中 / Loading...
+                </div>
+              </div>
+            </div>
+          }>
+            {visitedTabs.long && (
+              <div className={activeTab === 'long' ? 'flex-1 flex flex-col overflow-hidden relative' : 'hidden'}>
+                <LongVideoTab 
+                  profile={profile} 
+                  wallet={wallet} 
+                  onUpdateWallet={handleUpdateWallet} 
+                  onUpdateProfile={handleUpdateProfile} 
+                  onOpenTopup={handleOpenTopup}
+                  onOpenAiScanner={() => setIsAiScannerOpen(true)}
+                  onFullscreenChange={handleLongFullscreenChange}
+                />
+              </div>
+            )}
 
-          <div className={activeTab === 'short' ? 'flex-1 flex flex-col overflow-hidden relative' : 'hidden'}>
-            <ShortVideoTab 
-              profile={profile} 
-              wallet={wallet} 
-              onUpdateWallet={handleUpdateWallet} 
-              onUpdateProfile={handleUpdateProfile} 
-              onOpenTopup={handleOpenTopup}
-              onFullscreenChange={handleShortFullscreenChange}
-            />
-          </div>
+            {visitedTabs.short && (
+              <div className={activeTab === 'short' ? 'flex-1 flex flex-col overflow-hidden relative' : 'hidden'}>
+                <ShortVideoTab 
+                  profile={profile} 
+                  wallet={wallet} 
+                  onUpdateWallet={handleUpdateWallet} 
+                  onUpdateProfile={handleUpdateProfile} 
+                  onOpenTopup={handleOpenTopup}
+                  onFullscreenChange={handleShortFullscreenChange}
+                />
+              </div>
+            )}
 
-          <div className={activeTab === 'games' ? 'flex-1 flex flex-col overflow-hidden relative' : 'hidden'}>
-            <LoufengTab 
-              wallet={wallet} 
-              profile={profile} 
-              onUpdateWallet={handleUpdateWallet} 
-              onUpdateProfile={handleUpdateProfile} 
-              onOpenTopup={handleOpenTopup}
-            />
-          </div>
+            {visitedTabs.games && (
+              <div className={activeTab === 'games' ? 'flex-1 flex flex-col overflow-hidden relative' : 'hidden'}>
+                <LoufengTab 
+                  wallet={wallet} 
+                  profile={profile} 
+                  onUpdateWallet={handleUpdateWallet} 
+                  onUpdateProfile={handleUpdateProfile} 
+                  onOpenTopup={handleOpenTopup}
+                />
+              </div>
+            )}
 
-          <div className={activeTab === 'chess' ? 'flex-1 flex flex-col overflow-hidden relative pb-[60px] bg-[#121212]' : 'hidden'}>
-            <ChessTab 
-              wallet={wallet} 
-              profile={profile} 
-              onUpdateWallet={handleUpdateWallet} 
-              onUpdateProfile={handleUpdateProfile} 
-              onOpenTopup={handleOpenTopup}
-              onOpenCustomerService={() => setIsCustomerServiceOpen(true)}
-            />
-          </div>
+            {visitedTabs.chess && (
+              <div className={activeTab === 'chess' ? 'flex-1 flex flex-col overflow-hidden relative pb-[60px] bg-[#121212]' : 'hidden'}>
+                <ChessTab 
+                  wallet={wallet} 
+                  profile={profile} 
+                  onUpdateWallet={handleUpdateWallet} 
+                  onUpdateProfile={handleUpdateProfile} 
+                  onOpenTopup={handleOpenTopup}
+                  onOpenCustomerService={() => setIsCustomerServiceOpen(true)}
+                />
+              </div>
+            )}
 
-          <div className={activeTab === 'profile' ? 'flex-1 flex flex-col overflow-hidden relative' : 'hidden'}>
-            <ProfileTab 
-              profile={profile} 
-              wallet={wallet} 
-              onUpdateWallet={handleUpdateWallet} 
-              onUpdateProfile={handleUpdateProfile} 
-              onOpenTopup={handleOpenTopup}
-              onOpenAiScanner={() => setIsAiScannerOpen(true)}
-              onOpenCustomerService={() => setIsCustomerServiceOpen(true)}
-            />
-          </div>
+            {visitedTabs.profile && (
+              <div className={activeTab === 'profile' ? 'flex-1 flex flex-col overflow-hidden relative' : 'hidden'}>
+                <ProfileTab 
+                  profile={profile} 
+                  wallet={wallet} 
+                  onUpdateWallet={handleUpdateWallet} 
+                  onUpdateProfile={handleUpdateProfile} 
+                  onOpenTopup={handleOpenTopup}
+                  onOpenAiScanner={() => setIsAiScannerOpen(true)}
+                  onOpenCustomerService={() => setIsCustomerServiceOpen(true)}
+                />
+              </div>
+            )}
+          </Suspense>
         </div>
 
         {/* FIXED BOTTOM NAVIGATION BAR */}
@@ -296,32 +334,40 @@ export default function App() {
         )}
 
         {/* COMBINED MODAL TRANSACTION SYSTEM */}
-        <TopUpModal 
-          isOpen={isTopUpOpen} 
-          onClose={() => setIsTopUpOpen(false)}
-          tabType={topUpTabType}
-          profile={profile}
-          wallet={wallet}
-          onUpdateWallet={handleUpdateWallet}
-          onUpdateProfile={handleUpdateProfile}
-        />
+        <Suspense fallback={null}>
+          {isTopUpOpen && (
+            <TopUpModal 
+              isOpen={isTopUpOpen} 
+              onClose={() => setIsTopUpOpen(false)}
+              tabType={topUpTabType}
+              profile={profile}
+              wallet={wallet}
+              onUpdateWallet={handleUpdateWallet}
+              onUpdateProfile={handleUpdateProfile}
+            />
+          )}
 
-        {/* AI SMART CLOTHES SCANNER MODAL */}
-        <AiUnclotheModal 
-          isOpen={isAiScannerOpen}
-          onClose={() => setIsAiScannerOpen(false)}
-          profile={profile}
-          wallet={wallet}
-          onUpdateWallet={handleUpdateWallet}
-          onUpdateProfile={handleUpdateProfile}
-          onOpenTopup={handleOpenTopup}
-        />
+          {/* AI SMART CLOTHES SCANNER MODAL */}
+          {isAiScannerOpen && (
+            <AiUnclotheModal 
+              isOpen={isAiScannerOpen}
+              onClose={() => setIsAiScannerOpen(false)}
+              profile={profile}
+              wallet={wallet}
+              onUpdateWallet={handleUpdateWallet}
+              onUpdateProfile={handleUpdateProfile}
+              onOpenTopup={handleOpenTopup}
+            />
+          )}
 
-        <CustomerServiceModal 
-          isOpen={isCustomerServiceOpen}
-          onClose={() => setIsCustomerServiceOpen(false)}
-          username={profile.username}
-        />
+          {isCustomerServiceOpen && (
+            <CustomerServiceModal 
+              isOpen={isCustomerServiceOpen}
+              onClose={() => setIsCustomerServiceOpen(false)}
+              username={profile.username}
+            />
+          )}
+        </Suspense>
 
         {/* CUSTOM GLOBAL POPUP DIALOGS (INTERNAL & BEAUTIFIED) */}
         <AnimatePresence>
