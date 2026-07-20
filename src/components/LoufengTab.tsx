@@ -315,13 +315,15 @@ export default function LoufengTab({
       '🔑 确认支付金币解锁',
       `确定消耗 ${girl.coinCost} 社区金币，获取 [${girl.name}] 的微信号、Telegram和私人联系电话吗？`,
       () => {
-        onUpdateWallet({ goldCoins: wallet.goldCoins - girl.coinCost });
-        setUnlockedIds(prev => [...prev, girl.id]);
-        window.customRewardAlert(
-          '🎉 联系方式已解锁',
-          `恭喜！您已成功解锁人物 [${girl.name}] 的真实私人联系方式。老司机请注意绿色文明交往，遵守当地规定。`,
-          { tickets: 5 } // Reward short video tickets as standard incentive!
-        );
+        setTimeout(() => {
+          onUpdateWallet({ goldCoins: wallet.goldCoins - girl.coinCost });
+          setUnlockedIds(prev => [...prev, girl.id]);
+          window.customRewardAlert(
+            '🎉 联系方式已解锁',
+            `恭喜！您已成功解锁人物 [${girl.name}] 的真实私人联系方式。老司机请注意绿色文明交往，遵守当地规定。`,
+            { tickets: 5 } // Reward short video tickets as standard incentive!
+          );
+        }, 80);
       }
     );
   };

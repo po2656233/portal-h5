@@ -200,22 +200,24 @@ export default function ProfileTab({
 
   const handleLogout = () => {
     window.customConfirm('🚪 确定退出账号吗？', '确定要退出当前账号吗？您的资产和观影数将会重置为未登录状态。', () => {
-      onUpdateProfile({
-        isLoggedIn: false,
-        username: '未登录',
-        avatar: '',
-        vipExpiry: '未开通',
-        vipDaysLeft: 0,
-        longVideoTickets: 0,
-        shortVideoTickets: 0
-      });
-      onUpdateWallet({
-        mainBalance: 0,
-        gameBalance: 0,
-        goldCoins: 0,
-        goldBeans: 0
-      });
-      window.customAlert('🚪 登出成功', '您已成功退出当前账号。');
+      setTimeout(() => {
+        onUpdateProfile({
+          isLoggedIn: false,
+          username: '未登录',
+          avatar: '',
+          vipExpiry: '未开通',
+          vipDaysLeft: 0,
+          longVideoTickets: 0,
+          shortVideoTickets: 0
+        });
+        onUpdateWallet({
+          mainBalance: 0,
+          gameBalance: 0,
+          goldCoins: 0,
+          goldBeans: 0
+        });
+        window.customAlert('🚪 登出成功', '您已成功退出当前账号。');
+      }, 80);
     });
   };
 
