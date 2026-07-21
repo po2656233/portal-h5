@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { UserProfile, UserWallet } from './types';
-import { Film, PlayCircle, BookOpen, Gamepad2, User, Gift, Coins, Ticket, Sparkles, AlertCircle, HelpCircle, Info, Star, Venus } from 'lucide-react';
+import { Home, Film, PlayCircle, BookOpen, Gamepad2, User, Gift, Coins, Ticket, Sparkles, AlertCircle, HelpCircle, Info, Star, Venus } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 // Lazy load heavy page tabs and modals for peak initial bundle load efficiency
@@ -77,6 +77,7 @@ export default function App() {
 
   // Custom visual internal dialog state
   const [dialog, setDialog] = useState<{
+    id: string;
     isOpen: boolean;
     type: 'alert' | 'confirm' | 'prompt' | 'reward';
     title: string;
@@ -92,6 +93,7 @@ export default function App() {
   useEffect(() => {
     window.customAlert = (title, message) => {
       setDialog({
+        id: `dialog-${Date.now()}-${Math.random()}`,
         isOpen: true,
         type: 'alert',
         title,
@@ -101,6 +103,7 @@ export default function App() {
 
     window.customConfirm = (title, message, onConfirm) => {
       setDialog({
+        id: `dialog-${Date.now()}-${Math.random()}`,
         isOpen: true,
         type: 'confirm',
         title,
@@ -111,6 +114,7 @@ export default function App() {
 
     window.customPrompt = (title, message, onConfirm, placeholder) => {
       setDialog({
+        id: `dialog-${Date.now()}-${Math.random()}`,
         isOpen: true,
         type: 'prompt',
         title,
@@ -123,6 +127,7 @@ export default function App() {
 
     window.customRewardAlert = (title, message, rewards) => {
       setDialog({
+        id: `dialog-${Date.now()}-${Math.random()}`,
         isOpen: true,
         type: 'reward',
         title,
@@ -199,7 +204,7 @@ export default function App() {
             </div>
           }>
             {visitedTabs.long && (
-              <div className={activeTab === 'long' ? 'flex-1 flex flex-col overflow-hidden relative' : 'hidden'}>
+              <div className={activeTab === 'long' ? 'flex-1 flex flex-col overflow-hidden relative pb-[65px]' : 'hidden'}>
                 <LongVideoTab 
                   profile={profile} 
                   wallet={wallet} 
@@ -213,7 +218,7 @@ export default function App() {
             )}
 
             {visitedTabs.short && (
-              <div className={activeTab === 'short' ? 'flex-1 flex flex-col overflow-hidden relative' : 'hidden'}>
+              <div className={activeTab === 'short' ? 'flex-1 flex flex-col overflow-hidden relative pb-[65px]' : 'hidden'}>
                 <ShortVideoTab 
                   profile={profile} 
                   wallet={wallet} 
@@ -226,7 +231,7 @@ export default function App() {
             )}
 
             {visitedTabs.games && (
-              <div className={activeTab === 'games' ? 'flex-1 flex flex-col overflow-hidden relative' : 'hidden'}>
+              <div className={activeTab === 'games' ? 'flex-1 flex flex-col overflow-hidden relative pb-[65px]' : 'hidden'}>
                 <LoufengTab 
                   wallet={wallet} 
                   profile={profile} 
@@ -238,7 +243,7 @@ export default function App() {
             )}
 
             {visitedTabs.chess && (
-              <div className={activeTab === 'chess' ? 'flex-1 flex flex-col overflow-hidden relative pb-[60px] bg-[#121212]' : 'hidden'}>
+              <div className={activeTab === 'chess' ? 'flex-1 flex flex-col overflow-hidden relative pb-[65px] bg-[#121212]' : 'hidden'}>
                 <ChessTab 
                   wallet={wallet} 
                   profile={profile} 
@@ -251,7 +256,7 @@ export default function App() {
             )}
 
             {visitedTabs.profile && (
-              <div className={activeTab === 'profile' ? 'flex-1 flex flex-col overflow-hidden relative' : 'hidden'}>
+              <div className={activeTab === 'profile' ? 'flex-1 flex flex-col overflow-hidden relative pb-[65px]' : 'hidden'}>
                 <ProfileTab 
                   profile={profile} 
                   wallet={wallet} 
@@ -268,15 +273,15 @@ export default function App() {
 
         {/* FIXED BOTTOM NAVIGATION BAR */}
         {!isAnyFullscreen && (
-          <nav className="absolute bottom-0 inset-x-0 bg-[#161616]/95 backdrop-blur-md border-t border-neutral-800 py-2.5 px-3 flex items-center justify-around z-50 text-brand-gray">
+          <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-[#161616]/95 backdrop-blur-md border-t border-neutral-800 py-2.5 px-3 flex items-center justify-around z-50 text-brand-gray shadow-2xl">
             
             <button
               id="nav-long-video"
               onClick={() => setActiveTab('long')}
               className={`flex flex-col items-center gap-1 py-1 px-3 transition-all relative ${activeTab === 'long' ? 'text-white font-bold' : 'hover:text-gray-200'}`}
             >
-              <Film className={`w-5 h-5 ${activeTab === 'long' ? 'text-brand-purple scale-110' : ''} transition-transform`} />
-              <span className="text-[10px]">长视频</span>
+              <Home className={`w-5 h-5 ${activeTab === 'long' ? 'text-brand-purple scale-110' : ''} transition-transform`} />
+              <span className="text-[10px]">首页</span>
               {activeTab === 'long' && (
                 <span className="absolute bottom-0 w-4 h-0.5 bg-brand-purple rounded-full"></span>
               )}
@@ -295,6 +300,18 @@ export default function App() {
             </button>
 
             <button
+              id="nav-chess"
+              onClick={() => setActiveTab('chess')}
+              className={`flex flex-col items-center gap-1 py-1 px-3 transition-all relative ${activeTab === 'chess' ? 'text-white font-bold' : 'hover:text-gray-200'}`}
+            >
+              <Gamepad2 className={`w-5 h-5 ${activeTab === 'chess' ? 'text-brand-purple scale-110' : ''} transition-transform`} />
+              <span className="text-[10px]">游戏</span>
+              {activeTab === 'chess' && (
+                <span className="absolute bottom-0 w-4 h-0.5 bg-brand-purple rounded-full"></span>
+              )}
+            </button>
+
+            <button
               id="nav-games"
               onClick={() => setActiveTab('games')}
               className={`flex flex-col items-center gap-1 py-1 px-3 transition-all relative ${activeTab === 'games' ? 'text-white font-bold' : 'hover:text-gray-200'}`}
@@ -302,18 +319,6 @@ export default function App() {
               <Venus className={`w-5 h-5 ${activeTab === 'games' ? 'text-brand-purple scale-110' : ''} transition-transform`} />
               <span className="text-[10px]">楼凤</span>
               {activeTab === 'games' && (
-                <span className="absolute bottom-0 w-4 h-0.5 bg-brand-purple rounded-full"></span>
-              )}
-            </button>
-
-            <button
-              id="nav-chess"
-              onClick={() => setActiveTab('chess')}
-              className={`flex flex-col items-center gap-1 py-1 px-3 transition-all relative ${activeTab === 'chess' ? 'text-white font-bold' : 'hover:text-gray-200'}`}
-            >
-              <Gamepad2 className={`w-5 h-5 ${activeTab === 'chess' ? 'text-brand-purple scale-110' : ''} transition-transform`} />
-              <span className="text-[10px]">引流页</span>
-              {activeTab === 'chess' && (
                 <span className="absolute bottom-0 w-4 h-0.5 bg-brand-purple rounded-full"></span>
               )}
             </button>
@@ -370,9 +375,10 @@ export default function App() {
         </Suspense>
 
         {/* CUSTOM GLOBAL POPUP DIALOGS (INTERNAL & BEAUTIFIED) */}
-        <AnimatePresence>
+        <AnimatePresence mode="wait">
           {dialog && dialog.isOpen && (
             <motion.div 
+              key={dialog.id || 'global-dialog-backdrop'}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -457,8 +463,9 @@ export default function App() {
                   {(dialog.type === 'confirm' || dialog.type === 'prompt') && (
                     <button
                       onClick={() => {
-                        setDialog(prev => prev ? { ...prev, isOpen: false } : null);
-                        if (dialog.onCancel) dialog.onCancel();
+                        const cancelFn = dialog.onCancel;
+                        setDialog(null);
+                        if (cancelFn) cancelFn();
                       }}
                       className="flex-1 py-1.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-xs font-medium text-gray-400 border border-neutral-800 transition-all"
                     >
@@ -468,9 +475,11 @@ export default function App() {
 
                   <button
                     onClick={() => {
-                      setDialog(prev => prev ? { ...prev, isOpen: false } : null);
-                      if (dialog.onConfirm) {
-                        dialog.onConfirm(dialog.promptValue || '');
+                      const confirmFn = dialog.onConfirm;
+                      const promptValue = dialog.promptValue || '';
+                      setDialog(null);
+                      if (confirmFn) {
+                        confirmFn(promptValue);
                       }
                     }}
                     className={`flex-1 py-1.5 rounded-lg font-bold text-xs text-white transition-all shadow-md ${

@@ -457,6 +457,7 @@ export default function ShortVideoTab({
       <AnimatePresence>
         {showFilterOverlay && (
           <motion.div 
+            key="short-filter-overlay"
             initial={{ opacity: 0, y: -15 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -15 }}
@@ -565,6 +566,7 @@ export default function ShortVideoTab({
           <AnimatePresence>
             {!isPlaying && (
               <motion.div 
+                key="short-play-button"
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.8 }}
@@ -578,17 +580,32 @@ export default function ShortVideoTab({
 
           {/* Floating Tickets Left badge */}
           {!isImmersiveFullscreen && (
-            <div className="absolute top-20 left-4 z-10 bg-black/60 backdrop-blur-sm px-3.5 py-1.5 rounded-full border border-brand-purple/40 text-[10px] text-brand-purple flex items-center gap-1.5 shadow-md">
-              <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-              <span>短视频额度剩余: <strong>{profile.shortVideoTickets}</strong> 次</span>
-              {profile.shortVideoTickets <= 5 && (
-                <button 
-                  onClick={() => onOpenTopup('vip')}
-                  className="text-brand-gold font-bold hover:underline"
-                >
-                  充值
-                </button>
-              )}
+            <div className="absolute top-20 left-4 z-10 flex flex-col gap-2">
+              <div className="bg-black/70 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-brand-purple/40 text-[10px] text-brand-purple flex items-center gap-1.5 shadow-xl">
+                <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                <span>短视频观影额度: <strong>{profile.shortVideoTickets}</strong> 次</span>
+                {profile.shortVideoTickets <= 5 && (
+                  <button 
+                    onClick={() => onOpenTopup('vip')}
+                    className="text-brand-gold font-bold hover:underline ml-1"
+                  >
+                    充值
+                  </button>
+                )}
+              </div>
+
+              {/* Floating Sponsor Ad Badge */}
+              <div 
+                onClick={() => {
+                  alert('🎰 官方赞助商 澳门新葡京：已为您加赠 ¥1,888 游戏体验金！正在跳转到游戏大厅...');
+                  onUpdateWallet({ gameBalance: wallet.gameBalance + 1888 });
+                  document.getElementById('nav-chess')?.click();
+                }}
+                className="bg-gradient-to-r from-red-600 via-amber-600 to-yellow-500 text-white px-3 py-1.5 rounded-2xl border border-yellow-300 shadow-[0_0_15px_rgba(234,179,8,0.5)] cursor-pointer flex items-center gap-1.5 text-[10px] font-black hover:scale-105 transition-all animate-pulse"
+              >
+                <span className="text-sm">🎰</span>
+                <span>新葡京放水领 ¥1888 ➔</span>
+              </div>
             </div>
           )}
 
@@ -885,6 +902,7 @@ export default function ShortVideoTab({
       <AnimatePresence>
         {showComments && activeSubTab === 'recommend' && (
           <motion.div
+            key="short-comments-drawer"
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}

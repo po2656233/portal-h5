@@ -558,22 +558,27 @@ export default function LongVideoTab({
             onUpdateWallet({ gameBalance: wallet.gameBalance + 1888 });
             document.getElementById('nav-chess')?.click();
           }}
-          className="relative bg-gradient-to-r from-red-600 via-yellow-600 to-amber-700 p-3 rounded-xl border border-yellow-500/30 overflow-hidden cursor-pointer shadow-lg hover:brightness-105 transition-all flex items-center gap-3"
+          className="relative bg-gradient-to-r from-red-600 via-amber-600 to-yellow-500 p-3 rounded-2xl border-2 border-yellow-300/90 overflow-hidden cursor-pointer shadow-[0_0_20px_rgba(234,179,8,0.4)] hover:scale-[1.01] transition-all flex items-center gap-3 group"
         >
           {/* Ad Badge */}
-          <span className="absolute top-0 left-0 bg-red-700 text-white text-[8px] font-black px-1.5 py-0.5 rounded-br">官方广告</span>
+          <span className="absolute top-0 left-0 bg-gradient-to-r from-red-700 to-pink-600 text-white text-[9px] font-black px-2 py-0.5 rounded-br-xl shadow-md border-r border-b border-yellow-300/80">
+            🔥 顶级赞助商
+          </span>
           
-          <div className="w-10 h-10 rounded-lg bg-black border border-yellow-400 flex items-center justify-center text-xl font-bold text-yellow-400 shrink-0 shadow-inner">
+          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-yellow-300 via-amber-400 to-yellow-500 border-2 border-white flex items-center justify-center text-2xl font-bold text-black shrink-0 shadow-lg group-hover:rotate-6 transition-transform">
             🎰
           </div>
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 pt-1">
             <h4 className="text-xs font-black text-white flex items-center gap-1">
-              新葡京 <span className="text-yellow-300 font-bold">PG电子大放水送1888</span>
+              澳门新葡京 <span className="text-yellow-200 font-extrabold bg-red-950/80 px-1.5 py-0.5 rounded border border-yellow-400/60 shadow-sm">PG放水送1888</span>
             </h4>
-            <p className="text-[10px] text-yellow-100 font-medium truncate">百万豪客等你一起玩！极速自动充提秒到账</p>
+            <p className="text-[10px] text-yellow-100 font-bold truncate mt-0.5 drop-shadow">
+              💥 注册即赠 1888 金币！爆率 99.8% · 极速自动提款
+            </p>
           </div>
-          <div className="bg-yellow-400 hover:bg-yellow-300 text-black text-[10px] font-black py-1 px-2.5 rounded-full shrink-0 transition-colors">
-            立即开玩
+          <div className="bg-gradient-to-r from-yellow-300 to-amber-400 hover:from-yellow-200 hover:to-amber-300 text-black text-[11px] font-black py-1.5 px-3 rounded-xl shrink-0 transition-all shadow-lg shadow-yellow-500/40 flex items-center gap-1 group-hover:scale-105">
+            <span>领彩金</span>
+            <span className="text-xs">➔</span>
           </div>
         </div>
       </div>
@@ -693,21 +698,28 @@ export default function LongVideoTab({
             onClick={() => {
               alert('🎰 官方直营 太阳城集团 PG电子大放水！已为您模拟加赠 ¥888 游戏金币，并正在跳转至娱乐游戏大厅...');
               onUpdateWallet({ goldCoins: wallet.goldCoins + 888 });
-              // Real jump/navigation!
               document.getElementById('nav-chess')?.click();
             }}
-            className="bg-gradient-to-r from-red-800 via-amber-800 to-amber-900 p-2.5 rounded-lg border border-yellow-500/20 overflow-hidden cursor-pointer shadow flex items-center justify-between text-xs hover:brightness-105 transition-all animate-pulse"
+            className="relative bg-gradient-to-r from-red-900 via-amber-900 to-red-950 p-3 rounded-2xl border-2 border-yellow-400/80 overflow-hidden cursor-pointer shadow-[0_0_15px_rgba(245,158,11,0.35)] flex items-center justify-between text-xs hover:scale-[1.01] transition-all group"
           >
-            <div className="flex items-center gap-2">
-              <span className="text-base">🎰</span>
+            <span className="absolute top-0 right-0 bg-yellow-400 text-black text-[8px] font-black px-2 py-0.5 rounded-bl-xl shadow-md">
+              💥 爆率 99.8%
+            </span>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-300 to-amber-500 border border-white flex items-center justify-center text-xl shadow-md shrink-0 group-hover:scale-110 transition-transform">
+                🎰
+              </div>
               <div>
-                <h4 className="font-bold text-white flex items-center gap-1">
-                  PG麻将胡了：<span className="text-yellow-400 font-black">独赢翻倍，爆率爆满！</span>
+                <h4 className="font-black text-white text-xs flex items-center gap-1">
+                  PG麻将胡了：<span className="text-yellow-300 font-black">单发独赢爆巨彩！</span>
                 </h4>
-                <p className="text-[9px] text-amber-200">太阳城官方首存送包赔，提款极速秒到</p>
+                <p className="text-[10px] text-amber-200 mt-0.5 font-bold">太阳城首存送包赔，100%极速提款到账</p>
               </div>
             </div>
-            <span className="text-[9px] bg-red-600 px-1.5 py-0.5 rounded text-white font-bold">立即开玩</span>
+            <span className="text-[10px] bg-gradient-to-r from-yellow-300 to-amber-400 text-black px-3 py-1.5 rounded-xl font-black shadow-md shrink-0 group-hover:brightness-110 flex items-center gap-1">
+              <span>立即爆金</span>
+              <span>➔</span>
+            </span>
           </div>
 
           {/* 3. 猜你喜欢 (Interactive deterministic shuffle) */}
@@ -793,23 +805,30 @@ export default function LongVideoTab({
           {/* Ad Slot 2 (After 4 items) */}
           <div 
             onClick={() => {
-              alert('💋 AG亚游真人视讯：性感荷官在线发牌！为您加送 ¥500 模拟彩金，正在为您跳转至娱乐大厅...');
+              alert('💋 AG亚游真人视讯：性感荷官在线发牌！为您加送 ¥500 模拟彩金，正在为您跳转至游戏大厅...');
               onUpdateWallet({ gameBalance: wallet.gameBalance + 500 });
-              // Real jump/navigation!
-              document.getElementById('nav-games')?.click();
+              document.getElementById('nav-chess')?.click();
             }}
-            className="bg-gradient-to-r from-purple-900 via-indigo-900 to-blue-900 p-2.5 rounded-lg border border-purple-500/20 overflow-hidden cursor-pointer shadow flex items-center justify-between text-xs hover:brightness-105 transition-all"
+            className="relative bg-gradient-to-r from-purple-900 via-indigo-900 to-blue-950 p-3 rounded-2xl border-2 border-indigo-400/80 overflow-hidden cursor-pointer shadow-[0_0_15px_rgba(99,102,241,0.35)] flex items-center justify-between text-xs hover:scale-[1.01] transition-all group"
           >
-            <div className="flex items-center gap-2">
-              <span className="text-base">👩‍💼</span>
+            <span className="absolute top-0 right-0 bg-indigo-500 text-white text-[8px] font-black px-2 py-0.5 rounded-bl-xl shadow-md">
+              👑 顶级发牌
+            </span>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-400 to-purple-600 border border-white/60 flex items-center justify-center text-xl shadow-md shrink-0 group-hover:scale-110 transition-transform">
+                👩‍💼
+              </div>
               <div>
-                <h4 className="font-bold text-white flex items-center gap-1">
-                  AG真人：<span className="text-indigo-300 font-bold">极品空姐、制服荷官在线互动！</span>
+                <h4 className="font-black text-white text-xs flex items-center gap-1">
+                  AG真人视讯：<span className="text-indigo-300 font-black">性感空姐、制服荷官实时发牌！</span>
                 </h4>
-                <p className="text-[9px] text-indigo-200">超清极速推流无延迟，极爽投注体验</p>
+                <p className="text-[10px] text-indigo-200 mt-0.5 font-bold">4K 极速无损推流 · 私人对战体验</p>
               </div>
             </div>
-            <span className="text-[9px] bg-indigo-600 px-1.5 py-0.5 rounded text-white font-bold">立即看牌</span>
+            <span className="text-[10px] bg-gradient-to-r from-indigo-400 to-purple-500 text-white px-3 py-1.5 rounded-xl font-black shadow-md shrink-0 group-hover:brightness-110 flex items-center gap-1">
+              <span>立即入桌</span>
+              <span>➔</span>
+            </span>
           </div>
 
           {/* 5. 成人动漫 */}
@@ -1038,6 +1057,7 @@ export default function LongVideoTab({
       <AnimatePresence>
         {showCategoryOverlay && (
           <motion.div
+            key="category-overlay-panel"
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
@@ -1240,6 +1260,7 @@ export default function LongVideoTab({
       <AnimatePresence>
         {showFootprints && (
           <motion.div
+            key="footprints-panel"
             initial={{ x: '-100%' }}
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
@@ -1313,6 +1334,7 @@ export default function LongVideoTab({
       <AnimatePresence>
         {showPlayOverlay && activeVideo && (
           <motion.div 
+            key="play-overlay-panel"
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
@@ -1642,7 +1664,13 @@ export default function LongVideoTab({
       {/* Dynamic Video Error Report Modal */}
       <AnimatePresence>
         {showErrorReportModal && activeVideo && (
-          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+          <motion.div 
+            key="error-report-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+          >
             <motion.div 
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -1721,14 +1749,20 @@ export default function LongVideoTab({
                 </button>
               </div>
             </motion.div>
-          </div>
+          </motion.div>
         )}
       </AnimatePresence>
 
       {/* Dynamic Exquisite Share Modal */}
       <AnimatePresence>
         {showShareModal && shareVideoTarget && (
-          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-fade-in">
+          <motion.div 
+            key="share-modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm"
+          >
             <motion.div 
               initial={{ scale: 0.95, opacity: 0, y: 10 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -1849,7 +1883,7 @@ export default function LongVideoTab({
                 📢 推广提示：每成功邀请 1 位好友注册，您和好友均可额外获得 10 金币 + 3 天不限速 VIP 会员！
               </div>
             </motion.div>
-          </div>
+          </motion.div>
         )}
       </AnimatePresence>
 

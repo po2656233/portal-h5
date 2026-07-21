@@ -1,48 +1,23 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
-import path from 'path'
+import tailwindcss from '@tailwindcss/vite';
+import react from '@vitejs/plugin-react';
+import path from 'path';
+import {defineConfig} from 'vite';
 
-export default defineConfig({
-  plugins: [
-    react(),
-    tailwindcss(),
-  ],
-
-  resolve: {
-    alias: {
-      // '@': path.resolve(__dirname, 'src'),
-      '@': path.resolve(__dirname, '.'),
-    },
-  },
-
-  base: './',
-
-  build: {
-    target: 'es2018',
-    sourcemap: false,
-    minify: 'esbuild',
-
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          react: ['react', 'react-dom'],
-          icons: ['lucide-react'],
-        },
+export default defineConfig(() => {
+  return {
+    base: './',
+    plugins: [react(), tailwindcss()],
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, '.'),
       },
     },
-  },
-
-  // 只有开发服务器会使用
-  server: {
-    hmr: process.env.DISABLE_HMR !== 'true',
-    watch: process.env.DISABLE_HMR === 'true' ? null : {},
-    warmup: {
-      clientFiles: [
-        './src/main.tsx',
-        './src/App.tsx',
-        './src/components/LongVideoTab.tsx',
-      ],
+    server: {
+      // HMR is disabled in AI Studio via DISABLE_HMR env var.
+      // Do not modifyâfile watching is disabled to prevent flickering during agent edits.
+      hmr: process.env.DISABLE_HMR !== 'true',
+      // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.
+      watch: process.env.DISABLE_HMR === 'true' ? null : {},
     },
-  },
-})
+  };
+});

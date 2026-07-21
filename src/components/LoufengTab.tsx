@@ -315,15 +315,13 @@ export default function LoufengTab({
       '🔑 确认支付金币解锁',
       `确定消耗 ${girl.coinCost} 社区金币，获取 [${girl.name}] 的微信号、Telegram和私人联系电话吗？`,
       () => {
-        setTimeout(() => {
-          onUpdateWallet({ goldCoins: wallet.goldCoins - girl.coinCost });
-          setUnlockedIds(prev => [...prev, girl.id]);
-          window.customRewardAlert(
-            '🎉 联系方式已解锁',
-            `恭喜！您已成功解锁人物 [${girl.name}] 的真实私人联系方式。老司机请注意绿色文明交往，遵守当地规定。`,
-            { tickets: 5 } // Reward short video tickets as standard incentive!
-          );
-        }, 80);
+        onUpdateWallet({ goldCoins: wallet.goldCoins - girl.coinCost });
+        setUnlockedIds(prev => [...prev, girl.id]);
+        window.customRewardAlert(
+          '🎉 联系方式已解锁',
+          `恭喜！您已成功解锁人物 [${girl.name}] 的真实私人联系方式。老司机请注意绿色文明交往，遵守当地规定。`,
+          { tickets: 5 } // Reward short video tickets as standard incentive!
+        );
       }
     );
   };
@@ -490,6 +488,31 @@ export default function LoufengTab({
       {/* 3. MAIN CARDS FEED LIST */}
       <div className="flex-1 overflow-y-auto no-scrollbar px-4 space-y-4">
         
+        {/* High-Fidelity VIP Escort Sponsor Ad Banner */}
+        <div 
+          onClick={() => onOpenTopup('vip')}
+          className="relative bg-gradient-to-r from-pink-900 via-rose-900 to-purple-950 p-3.5 rounded-2xl border-2 border-pink-400/80 overflow-hidden cursor-pointer shadow-[0_0_20px_rgba(236,72,153,0.35)] hover:scale-[1.01] transition-all flex items-center justify-between group"
+        >
+          <span className="absolute top-0 right-0 bg-gradient-to-r from-pink-500 to-rose-600 text-white text-[8px] font-black px-2 py-0.5 rounded-bl-xl shadow">
+            💎 尊享VIP极速特权
+          </span>
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-pink-500 to-rose-600 border border-white flex items-center justify-center text-2xl shadow-md shrink-0 group-hover:scale-110 transition-transform">
+              👑
+            </div>
+            <div>
+              <h4 className="font-black text-white text-xs flex items-center gap-1">
+                同城极品私人速约：<span className="text-yellow-300 font-black">VIP全免解锁微信号！</span>
+              </h4>
+              <p className="text-[10px] text-pink-200 mt-0.5 font-bold">已覆盖全国 300+ 城市 · 真实极品全套自查</p>
+            </div>
+          </div>
+          <span className="text-[10px] bg-gradient-to-r from-yellow-300 to-amber-400 text-black px-3 py-1.5 rounded-xl font-black shadow-md shrink-0 group-hover:brightness-110 flex items-center gap-1">
+            <span>开通VIP</span>
+            <span>➔</span>
+          </span>
+        </div>
+
         {/* Banner Alert Advice */}
         <div className="p-3 rounded-2xl bg-gradient-to-r from-brand-purple/15 via-rose-950/15 to-transparent border border-pink-500/10 flex items-start gap-2.5">
           <ShieldAlert className="w-4.5 h-4.5 text-brand-gold shrink-0 mt-0.5" />
@@ -640,7 +663,13 @@ export default function LoufengTab({
       {/* 4. DETAILS CAROUSEL OVERLAY SCREEN */}
       <AnimatePresence>
         {selectedGirl && (
-          <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/90 backdrop-blur-md animate-fade-in">
+          <motion.div 
+            key="loufeng-detail-modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-end justify-center bg-black/90 backdrop-blur-md"
+          >
             <motion.div
               initial={{ y: 250, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -1010,7 +1039,7 @@ export default function LoufengTab({
               </div>
 
             </motion.div>
-          </div>
+          </motion.div>
         )}
       </AnimatePresence>
 

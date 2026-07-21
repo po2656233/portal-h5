@@ -429,16 +429,19 @@ export default function ChessTab({
             
             <div className="space-y-3">
               {[
-                { title: '🎁 绑定推广码 BANANA66 赠￥88', subtitle: '新老会员在充值界面输入专属推广码，立得88金币特权，赠送长视频无限看！', bg: 'from-pink-50 to-red-50 border-pink-100', text: 'text-red-700' },
-                { title: '🛡️ 每日包赔特权：亏损返还 15%', subtitle: '凡在游戏电玩馆每日累计损耗达到 ￥100 即可自动返点，次日一键提款。', bg: 'from-amber-50 to-orange-50 border-amber-100', text: 'text-amber-800' },
+                { title: '🎁 绑定推广码 BANANA66 赠￥88', subtitle: '新老会员输入专属推广码，立得88金币特权，赠送全场观影无限看！', bg: 'from-pink-600 via-rose-600 to-red-600', border: 'border-pink-300', text: 'text-white', badge: '🔥 热门推荐' },
+                { title: '🛡️ 每日包赔特权：亏损返还 15%', subtitle: '凡在游戏电玩馆每日累计损耗达到 ￥100 即可自动返点，次日一键极速提款。', bg: 'from-amber-600 via-yellow-600 to-orange-600', border: 'border-yellow-200', text: 'text-white', badge: '💰 特权保障' },
               ].map((promo, idx) => (
                 <div 
                   key={idx}
                   onClick={() => alert(`🎉 活动报名成功！【${promo.title.slice(2)}】已自动激活，奖励已发放。`)}
-                  className={`p-3 bg-gradient-to-r ${promo.bg} border rounded-xl shadow-sm cursor-pointer hover:brightness-95 transition-all space-y-1`}
+                  className={`p-3.5 bg-gradient-to-r ${promo.bg} border-2 ${promo.border} rounded-2xl shadow-lg cursor-pointer hover:scale-[1.01] transition-all space-y-1 relative overflow-hidden group`}
                 >
-                  <h4 className={`text-[11px] font-black ${promo.text}`}>{promo.title}</h4>
-                  <p className="text-[9px] text-gray-500 leading-relaxed">{promo.subtitle}</p>
+                  <span className="absolute top-0 right-0 bg-black/40 backdrop-blur-sm text-yellow-300 text-[8px] font-black px-2 py-0.5 rounded-bl-xl border-l border-b border-white/20">
+                    {promo.badge}
+                  </span>
+                  <h4 className={`text-xs font-black ${promo.text} drop-shadow-sm flex items-center gap-1`}>{promo.title}</h4>
+                  <p className="text-[10px] text-white/90 font-medium leading-relaxed pr-12">{promo.subtitle}</p>
                 </div>
               ))}
             </div>
@@ -630,7 +633,13 @@ export default function ChessTab({
       {/* 3. INTERACTIVE SIMULATOR DIALOG OVERLAY */}
       <AnimatePresence>
         {activePlayGame && (
-          <div className="fixed inset-0 z-[90] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm text-white">
+          <motion.div 
+            key="chess-play-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[90] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm text-white"
+          >
             <motion.div 
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -733,7 +742,7 @@ export default function ChessTab({
                 </div>
               )}
             </motion.div>
-          </div>
+          </motion.div>
         )}
       </AnimatePresence>
 

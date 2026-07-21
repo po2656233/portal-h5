@@ -52,8 +52,6 @@ export default function SearchOverlay({
     }
   }, [isOpen, currentTabPreference]);
 
-  if (!isOpen) return null;
-
   // Helper to record search query
   const recordQuery = (term: string) => {
     const trimmed = term.trim();
@@ -134,12 +132,14 @@ export default function SearchOverlay({
 
   return (
     <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 10 }}
-        className="absolute inset-0 w-full bg-[#121214] z-45 flex flex-col text-white shadow-2xl pb-[60px]"
-      >
+      {isOpen && (
+        <motion.div
+          key="search-overlay-modal"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 10 }}
+          className="absolute inset-0 w-full bg-[#121214] z-45 flex flex-col text-white shadow-2xl pb-[60px]"
+        >
         {/* Figure 1 Top Search Bar Header */}
         <div className="p-3 bg-[#1e1e21] border-b border-neutral-800 flex items-center gap-2 shrink-0">
           {/* Back Arrow */}
@@ -411,6 +411,7 @@ export default function SearchOverlay({
           )}
         </div>
       </motion.div>
+      )}
     </AnimatePresence>
   );
 }
