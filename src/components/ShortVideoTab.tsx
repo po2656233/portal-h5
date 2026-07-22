@@ -51,6 +51,37 @@ export default function ShortVideoTab({
     }
   }, [isImmersiveFullscreen, onFullscreenChange]);
 
+  const [currentTime, setCurrentTime] = useState<number>(0);
+  const [duration, setDuration] = useState<number>(0);
+
+  const handleRewind = (seconds: number = 10) => {
+    if (!videoRef.current) return;
+    videoRef.current.currentTime = Math.max(0, videoRef.current.currentTime - seconds);
+    setCurrentTime(videoRef.current.currentTime);
+  };
+
+  const handleFastForward = (seconds: number = 10) => {
+    if (!videoRef.current) return;
+    const newTime = Math.min(duration || 1000, videoRef.current.currentTime + seconds);
+    videoRef.current.currentTime = newTime;
+    setCurrentTime(newTime);
+  };
+
+  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTime = Number(e.target.value);
+    if (videoRef.current) {
+      videoRef.current.currentTime = newTime;
+      setCurrentTime(newTime);
+    }
+  };
+
+  const formatTime = (seconds: number) => {
+    if (isNaN(seconds) || seconds < 0) return '00:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
+
   // Comments management
   const [showComments, setShowComments] = useState<boolean>(false);
   const [commentsList, setCommentsList] = useState<{ [key: string]: VideoComment[] }>({});
@@ -555,11 +586,26 @@ export default function ShortVideoTab({
               loop 
               muted={false} // Allow standard audio in production
               playsInline
+              onTimeUpdate={() => {
+                if (videoRef.current) {
+                  setCurrentTime(videoRef.current.currentTime);
+                  setDuration(videoRef.current.duration || 0);
+                }
+              }}
+              onLoadedMetadata={() => {
+                if (videoRef.current) {
+                  setDuration(videoRef.current.duration || 0);
+                }
+              }}
               className="w-full h-full object-cover opacity-90"
             />
-            {/* Visual gradient covers for readable overlay labels */}
-            <div className="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-black via-black/40 to-transparent pointer-events-none"></div>
-            <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-black/60 to-transparent pointer-events-none"></div>
+            {/* Visual gradient covers for readable overlay labels (Hidden in full screen) */}
+            {!isImmersiveFullscreen && (
+              <>
+                <div className="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-black via-black/40 to-transparent pointer-events-none"></div>
+                <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-black/60 to-transparent pointer-events-none"></div>
+              </>
+            )}
           </div>
 
           {/* LARGE INTERACTIVE CENTRAL PLAY BUTTON (Only visible when paused) */}
@@ -641,10 +687,10 @@ export default function ShortVideoTab({
 
           {/* RIGHT ACTION BUTTONS */}
           {!isImmersiveFullscreen ? (
-            <div className="absolute right-4 bottom-32 z-10 flex flex-col items-center gap-4">
+            <div className="absolute right-3 bottom-20 z-20 flex flex-col items-center gap-3">
               {/* Uploader Avatar with Follow */}
-              <div className="relative mb-2">
-                <div className="w-11 h-11 rounded-full border-2 border-brand-purple p-0.5 overflow-hidden bg-black">
+              <div className="relative mb-1">
+                <div className="w-10 h-10 rounded-full border-2 border-brand-purple p-0.5 overflow-hidden bg-black shadow-lg">
                   <img 
                     src={currentVideo.uploader.avatar} 
                     alt={currentVideo.uploader.name} 
@@ -662,28 +708,28 @@ export default function ShortVideoTab({
 
               {/* Like */}
               <button onClick={() => toggleLike(currentVideo.id)} className="flex flex-col items-center group cursor-pointer">
-                <div className={`p-2.5 rounded-full bg-black/50 border border-white/5 shadow-lg group-hover:scale-105 transition-transform ${vLiked ? 'text-pink-500' : 'text-white'}`}>
-                  <Heart className="w-5 h-5 fill-current" />
+                <div className={`p-2 rounded-full bg-black/60 backdrop-blur-sm border border-white/10 shadow-lg group-hover:scale-105 transition-transform ${vLiked ? 'text-pink-500' : 'text-white'}`}>
+                  <Heart className="w-4 h-4 fill-current" />
                 </div>
-                <span className="text-[10px] text-gray-200 font-bold mt-1 shadow">
+                <span className="text-[9.5px] text-gray-200 font-bold mt-0.5 shadow">
                   {(vLikes / 1000).toFixed(1)}k
                 </span>
               </button>
 
               {/* Favorite */}
               <button onClick={() => toggleFavorite(currentVideo.id)} className="flex flex-col items-center group cursor-pointer">
-                <div className={`p-2.5 rounded-full bg-black/50 border border-white/5 shadow-lg group-hover:scale-105 transition-transform ${vFav ? 'text-amber-400' : 'text-white'}`}>
-                  <Star className="w-5 h-5 fill-current" />
+                <div className={`p-2 rounded-full bg-black/60 backdrop-blur-sm border border-white/10 shadow-lg group-hover:scale-105 transition-transform ${vFav ? 'text-amber-400' : 'text-white'}`}>
+                  <Star className="w-4 h-4 fill-current" />
                 </div>
-                <span className="text-[10px] text-gray-200 font-bold mt-1 shadow">收藏</span>
+                <span className="text-[9.5px] text-gray-200 font-bold mt-0.5 shadow">收藏</span>
               </button>
 
               {/* Comments */}
               <button onClick={() => setShowComments(true)} className="flex flex-col items-center group cursor-pointer">
-                <div className="p-2.5 rounded-full bg-black/50 border border-white/5 shadow-lg text-white group-hover:scale-105 transition-transform">
-                  <MessageCircle className="w-5 h-5" />
+                <div className="p-2 rounded-full bg-black/60 backdrop-blur-sm border border-white/10 shadow-lg text-white group-hover:scale-105 transition-transform">
+                  <MessageCircle className="w-4 h-4" />
                 </div>
-                <span className="text-[10px] text-gray-200 font-bold mt-1 shadow">{vComments.length}</span>
+                <span className="text-[9.5px] text-gray-200 font-bold mt-0.5 shadow">{vComments.length}</span>
               </button>
 
               {/* Fullscreen Button */}
@@ -695,36 +741,49 @@ export default function ShortVideoTab({
                   }} 
                   className="flex flex-col items-center group cursor-pointer"
                 >
-                  <div className="p-2.5 rounded-full bg-black/50 border border-white/5 shadow-lg text-white group-hover:scale-105 transition-transform">
-                    <Maximize2 className="w-5 h-5" />
+                  <div className="p-2 rounded-full bg-black/60 backdrop-blur-sm border border-white/10 shadow-lg text-white group-hover:scale-105 transition-transform">
+                    <Maximize2 className="w-4 h-4" />
                   </div>
-                  <span className="text-[10px] text-gray-200 font-bold mt-1 shadow">全屏</span>
+                  <span className="text-[9.5px] text-gray-200 font-bold mt-0.5 shadow">全屏</span>
                 </button>
               )}
             </div>
           ) : null}
 
-          {/* BOTTOM OVERLAY LABELS */}
+          {/* BOTTOM OVERLAY LABELS (Positioned right above bottom navigation bar) */}
           {!isImmersiveFullscreen && (
-            <div className="absolute bottom-18 left-4 right-20 z-10 space-y-3.5 pr-4">
+            <div className="absolute bottom-20 left-3 right-16 z-20 space-y-1.5 pr-2 pointer-events-auto">
               <div className="flex items-center gap-2">
-                <h4 className="font-extrabold text-sm tracking-wide">@{currentVideo.uploader.name}</h4>
-                <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-pink-500/20 text-pink-300 border border-pink-500/30">签约主播</span>
+                <h4 className="font-extrabold text-xs tracking-wide text-white drop-shadow">@{currentVideo.uploader.name}</h4>
+                <span className="px-1.5 py-0.2 rounded text-[8px] font-bold bg-pink-500/20 text-pink-300 border border-pink-500/30">签约主播</span>
               </div>
 
-              <p 
-                onClick={() => setIsTitleExpanded(!isTitleExpanded)}
-                className={`text-xs text-gray-100 leading-relaxed drop-shadow cursor-pointer transition-all ${isTitleExpanded ? 'line-clamp-none' : 'line-clamp-2'}`}
-              >
-                {currentVideo.title}
-                {!isTitleExpanded && currentVideo.title.length > 24 && (
-                  <span className="text-brand-purple text-[10px] ml-1.5 font-bold hover:underline">... 展开</span>
+              {/* Title with max 24 chars break, conditional expand/collapse */}
+              <div className="text-[11.5px] text-gray-100 leading-snug drop-shadow">
+                {currentVideo.title.length <= 24 ? (
+                  <p className="whitespace-pre-wrap break-words">{currentVideo.title}</p>
+                ) : (
+                  <div>
+                    <p className="whitespace-pre-wrap break-words inline">
+                      {isTitleExpanded ? currentVideo.title : `${currentVideo.title.slice(0, 24)}...`}
+                    </p>
+                    <button 
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsTitleExpanded(!isTitleExpanded);
+                      }}
+                      className="text-[10px] text-brand-purple font-black ml-1.5 hover:underline cursor-pointer inline-block"
+                    >
+                      {isTitleExpanded ? '收起 ▲' : '展开 ▼'}
+                    </button>
+                  </div>
                 )}
-              </p>
+              </div>
 
-              <div className="flex items-center gap-2 text-[10px] text-brand-purple">
-                <Music className="w-3.5 h-3.5 animate-spin" style={{ animationDuration: '4s' }} />
-                <div className="overflow-hidden whitespace-nowrap w-40">
+              <div className="flex items-center gap-1.5 text-[9.5px] text-brand-purple">
+                <Music className="w-3 h-3 animate-spin" style={{ animationDuration: '4s' }} />
+                <div className="overflow-hidden whitespace-nowrap w-36">
                   <p className="animate-marquee inline-block font-medium">
                     原声 - {currentVideo.uploader.name} 专属高保真声轨
                   </p>

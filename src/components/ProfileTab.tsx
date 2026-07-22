@@ -729,7 +729,7 @@ export default function ProfileTab({
         </div>
       </div>
 
-      {/* CORE INTERACTIVE SERVICE DETAIL MODALS */}
+      {/* CORE INTERACTIVE SERVICE DETAIL MODALS (Pops up strictly above bottom navigation bar) */}
       <AnimatePresence>
         {activeProfileModal && (
           <motion.div 
@@ -737,13 +737,16 @@ export default function ProfileTab({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-end justify-center bg-black/80 p-4"
+            onClick={() => setActiveProfileModal(null)}
+            className="fixed inset-x-0 top-0 bottom-[65px] z-[60] max-w-md mx-auto flex items-end justify-center bg-black/80 backdrop-blur-sm p-3"
           >
             <motion.div 
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
-              className="w-full max-w-md bg-brand-card border-t border-neutral-800 rounded-t-3xl p-5 text-white flex flex-col max-h-[70vh] overflow-y-auto no-scrollbar space-y-4"
+              transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full bg-[#18181c] border border-neutral-700/80 rounded-2xl p-4 text-white flex flex-col max-h-[calc(100vh-130px)] overflow-y-auto no-scrollbar space-y-4 shadow-2xl ring-1 ring-brand-purple/30"
             >
               <div className="flex items-center justify-between border-b border-neutral-800 pb-3">
                 <h3 className="font-extrabold text-xs text-brand-gold">

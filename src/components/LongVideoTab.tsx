@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { VideoItem, UserProfile, UserWallet } from '../types';
 import { MOCK_LONG_VIDEOS } from '../data';
-import { Play, Flame, Search, ChevronRight, Heart, Volume2, ArrowUp, Sparkles, AlertCircle, X, SlidersHorizontal, ArrowLeft, Clock } from 'lucide-react';
+import { Play, Pause, FastForward, Rewind, Maximize2, Minimize2, Flame, Search, ChevronRight, Heart, Volume2, VolumeX, ArrowUp, Sparkles, AlertCircle, X, SlidersHorizontal, ArrowLeft, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { BananaApiService } from '../apiService';
 import SearchOverlay from './SearchOverlay';
@@ -91,12 +91,192 @@ export default function LongVideoTab({
   const [hoveredVideoId, setHoveredVideoId] = useState<string | null>(null);
   const [showBackToTop, setShowBackToTop] = useState<boolean>(false);
   const [showPlayOverlay, setShowPlayOverlay] = useState<boolean>(false);
+  const longVideoRef = useRef<HTMLVideoElement | null>(null);
+  const [isPlaying, setIsPlaying] = useState<boolean>(true);
+  const [currentTime, setCurrentTime] = useState<number>(0);
+  const [duration, setDuration] = useState<number>(0);
+  const [playbackRate, setPlaybackRate] = useState<number>(1);
+  const [isPlayerFullscreen, setIsPlayerFullscreen] = useState<boolean>(false);
+  const [isMuted, setIsMuted] = useState<boolean>(false);
+
+  // Auto-scrolling 3rd-party software ads banner state
+  const bannerScrollRef = useRef<HTMLDivElement>(null);
+  const softwareAds = [
+    {
+      id: 'app-tg',
+      name: 'Telegram',
+      desc: '隐私加密社交',
+      tag: '热门',
+      icon: '✈️',
+      bgGradient: 'from-blue-950/90 via-slate-900/90 to-neutral-950',
+      badgeBg: 'bg-sky-400/90 text-black',
+      url: 'https://telegram.org',
+    },
+    {
+      id: 'app-tt',
+      name: 'TikTok',
+      desc: '免拔卡短视频',
+      tag: '爆款',
+      icon: '🎵',
+      bgGradient: 'from-pink-950/90 via-slate-900/90 to-neutral-950',
+      badgeBg: 'bg-pink-400/90 text-black',
+      url: 'https://tiktok.com',
+    },
+    {
+      id: 'app-pg',
+      name: 'PG 电子',
+      desc: '爆率全开送金',
+      tag: '高返',
+      icon: '🎰',
+      bgGradient: 'from-amber-950/90 via-slate-900/90 to-neutral-950',
+      badgeBg: 'bg-amber-400/90 text-black',
+      url: 'https://pgsoft.com',
+    },
+    {
+      id: 'app-bat',
+      name: '蝙蝠通讯',
+      desc: '端到端私密防封',
+      tag: '防封',
+      icon: '🦇',
+      bgGradient: 'from-purple-950/90 via-slate-900/90 to-neutral-950',
+      badgeBg: 'bg-purple-300/90 text-black',
+      url: 'https://batchat.com',
+    },
+  ];
+
+  // Continuous Rightward Smooth Infinite Auto-Scroller
+  useEffect(() => {
+    let animationFrameId: number;
+    const speed = 0.5; // Smooth steady rightward movement speed
+    let isInteracting = false;
+
+    const el = bannerScrollRef.current;
+    if (!el) return;
+
+    let currentPos = el.scrollLeft;
+
+    const handleInteractionStart = () => { 
+      isInteracting = true; 
+    };
+    const handleInteractionEnd = () => { 
+      if (el) currentPos = el.scrollLeft;
+      isInteracting = false; 
+    };
+
+    el.addEventListener('touchstart', handleInteractionStart, { passive: true });
+    el.addEventListener('touchend', handleInteractionEnd, { passive: true });
+    el.addEventListener('touchcancel', handleInteractionEnd, { passive: true });
+    el.addEventListener('mouseenter', handleInteractionStart);
+    el.addEventListener('mouseleave', handleInteractionEnd);
+
+    const step = () => {
+      if (!isInteracting && el) {
+        const totalSets = 6;
+        const singleSetWidth = el.scrollWidth / totalSets;
+        if (singleSetWidth > 0) {
+          currentPos += speed;
+          // When scrolled past set 3, seamlessly jump back by 1 set
+          if (currentPos >= singleSetWidth * 3) {
+            currentPos -= singleSetWidth;
+          }
+          el.scrollLeft = currentPos;
+        }
+      } else if (el) {
+        currentPos = el.scrollLeft;
+      }
+      animationFrameId = requestAnimationFrame(step);
+    };
+
+    animationFrameId = requestAnimationFrame(step);
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      el.removeEventListener('touchstart', handleInteractionStart);
+      el.removeEventListener('touchend', handleInteractionEnd);
+      el.removeEventListener('touchcancel', handleInteractionEnd);
+      el.removeEventListener('mouseenter', handleInteractionStart);
+      el.removeEventListener('mouseleave', handleInteractionEnd);
+    };
+  }, []);
 
   useEffect(() => {
     if (onFullscreenChange) {
-      onFullscreenChange(false);
+      onFullscreenChange(isPlayerFullscreen);
     }
-  }, [onFullscreenChange]);
+  }, [isPlayerFullscreen, onFullscreenChange]);
+
+  const togglePlay = () => {
+    if (!longVideoRef.current) return;
+    if (isPlaying) {
+      longVideoRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      longVideoRef.current.play();
+      setIsPlaying(true);
+    }
+  };
+
+  const toggleMute = () => {
+    if (!longVideoRef.current) return;
+    longVideoRef.current.muted = !isMuted;
+    setIsMuted(!isMuted);
+  };
+
+  const handleRewind = (seconds: number = 10) => {
+    if (!longVideoRef.current) return;
+    longVideoRef.current.currentTime = Math.max(0, longVideoRef.current.currentTime - seconds);
+    setCurrentTime(longVideoRef.current.currentTime);
+  };
+
+  const handleFastForward = (seconds: number = 10) => {
+    if (!longVideoRef.current) return;
+    const newTime = Math.min(duration || 1000, longVideoRef.current.currentTime + seconds);
+    longVideoRef.current.currentTime = newTime;
+    setCurrentTime(newTime);
+  };
+
+  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTime = Number(e.target.value);
+    if (longVideoRef.current) {
+      longVideoRef.current.currentTime = newTime;
+      setCurrentTime(newTime);
+    }
+  };
+
+  const handleSpeedChange = (speed: number) => {
+    setPlaybackRate(speed);
+    if (longVideoRef.current) {
+      longVideoRef.current.playbackRate = speed;
+    }
+  };
+
+  const formatTime = (seconds: number) => {
+    if (isNaN(seconds) || seconds < 0) return '00:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
+
+  const handlePlayTestVideo = () => {
+    const testVideoItem: VideoItem = {
+      id: 'test-demo-1080p',
+      title: '🎬【官方测试视频】支持播放、暂停、快进+10s、快退-10s、倍速与全屏无遮罩',
+      category: '测试视频',
+      coverUrl: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=500&q=80',
+      gifUrl: 'https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3ZpcjJzdGptZnJpdXB0ZTN3ZWZmaThpdXZzNTY5dm5mOWt0NzA5MyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l0ExdFnI6g8A6SclO/giphy.gif',
+      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+      views: 999900,
+      favorites: 88800,
+      duration: '09:56',
+      tags: ['测试视频', '4K超清', '流畅播放', '快进快退'],
+      isVipOnly: false
+    };
+    setActiveVideo(testVideoItem);
+    setShowPlayOverlay(true);
+    setIsPlaying(true);
+    setPlayerLoading(true);
+    setTimeout(() => setPlayerLoading(false), 500);
+  };
   const [playerLoading, setPlayerLoading] = useState<boolean>(false);
 
   // Perfecting details page features states
@@ -525,6 +705,44 @@ export default function LongVideoTab({
           >
             <Search className="w-4 h-4" />
           </button>
+        </div>
+      </div>
+
+      {/* 4-Column Continuous Rightward Auto-Scrolling Sleek 3rd-Party Ads Banner */}
+      <div className="px-4 pb-2">
+        <div 
+          ref={bannerScrollRef}
+          className="w-full overflow-x-auto touch-pan-x no-scrollbar flex gap-2 select-none py-0.5"
+        >
+          {Array(6).fill(softwareAds).flat().map((ad, idx) => (
+            <div
+              key={`${ad.id}-${idx}`}
+              onClick={() => {
+                try {
+                  window.open(ad.url, '_blank', 'noopener,noreferrer');
+                } catch {
+                  window.location.href = ad.url;
+                }
+              }}
+              className="shrink-0 w-[calc(25%-6px)] h-[68px] rounded-xl bg-gradient-to-b from-neutral-900/95 via-neutral-900/70 to-black/95 p-1.5 flex flex-col items-center justify-center text-center border border-white/10 hover:border-amber-400/60 shadow-md cursor-pointer hover:scale-[1.03] active:scale-95 transition-all relative overflow-hidden group"
+            >
+              {/* Badge Tag */}
+              <span className={`text-[7.5px] font-black px-1.5 py-0.2 rounded-full absolute top-1 right-1 shadow-sm ${ad.badgeBg}`}>
+                {ad.tag}
+              </span>
+
+              {/* Icon */}
+              <div className="w-6 h-6 rounded-lg bg-black/50 border border-white/10 flex items-center justify-center text-xs shadow-inner shrink-0 group-hover:scale-110 transition-transform">
+                {ad.icon}
+              </div>
+
+              {/* Text Info */}
+              <div className="min-w-0 w-full mt-1">
+                <h4 className="text-[10px] font-black text-white truncate leading-tight drop-shadow-sm">{ad.name}</h4>
+                <p className="text-[8px] text-gray-400 truncate opacity-80 mt-0.5">{ad.desc}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -1356,26 +1574,37 @@ export default function LongVideoTab({
               <div className="w-5 h-5" /> {/* Balance spacer */}
             </div>
 
-            {/* Video Player Box */}
-            <div className="relative aspect-video w-full bg-black flex items-center justify-center shrink-0">
+            {/* Video Player Box with Native Video Controls (Image 1 style) */}
+            <div className={`relative bg-black flex flex-col justify-between shrink-0 group transition-all duration-300 ${
+              isPlayerFullscreen 
+                ? 'fixed inset-0 z-[100] w-screen h-screen bg-black flex flex-col justify-between overflow-hidden' 
+                : 'aspect-video w-full'
+            }`}>
               {playerLoading ? (
-                <div className="flex flex-col items-center gap-3">
+                <div className="flex-1 flex flex-col items-center justify-center gap-3">
                   <div className="w-10 h-10 rounded-full border-2 border-pink-500 border-t-transparent animate-spin"></div>
                   <span className="text-xs text-pink-500 animate-pulse">某某云播专线极速分流中...</span>
                 </div>
               ) : (
-                <>
+                <div className="relative w-full h-full flex flex-col justify-between overflow-hidden bg-black">
+                  {/* Native Video Stream */}
                   <video 
+                    ref={longVideoRef}
                     src={activeVideo.videoUrl} 
+                    controls
                     autoPlay 
-                    controls 
                     loop 
-                    className="w-full h-full object-contain"
+                    playsInline
+                    className="w-full h-full object-contain bg-black"
                   />
-                  <span className="absolute top-3 right-3 text-[9px] bg-black/60 px-1.5 py-0.5 rounded text-brand-gold font-bold select-none">
-                    1080P 超清
-                  </span>
-                </>
+
+                  {/* Top Quality Badge matching Image 1 */}
+                  <div className="absolute top-3 right-3 z-20 pointer-events-none">
+                    <span className="text-[10px] bg-[#222222]/90 text-[#e6b800] border border-[#333333] font-bold px-2 py-0.5 rounded shadow">
+                      1080P超清
+                    </span>
+                  </div>
+                </div>
               )}
             </div>
 

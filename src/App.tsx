@@ -204,7 +204,7 @@ export default function App() {
             </div>
           }>
             {visitedTabs.long && (
-              <div className={activeTab === 'long' ? 'flex-1 flex flex-col overflow-hidden relative pb-[65px]' : 'hidden'}>
+              <div className={activeTab === 'long' ? 'flex-1 flex flex-col overflow-hidden relative' : 'hidden'}>
                 <LongVideoTab 
                   profile={profile} 
                   wallet={wallet} 
@@ -218,7 +218,7 @@ export default function App() {
             )}
 
             {visitedTabs.short && (
-              <div className={activeTab === 'short' ? 'flex-1 flex flex-col overflow-hidden relative pb-[65px]' : 'hidden'}>
+              <div className={activeTab === 'short' ? 'flex-1 flex flex-col overflow-hidden relative' : 'hidden'}>
                 <ShortVideoTab 
                   profile={profile} 
                   wallet={wallet} 
@@ -231,7 +231,7 @@ export default function App() {
             )}
 
             {visitedTabs.games && (
-              <div className={activeTab === 'games' ? 'flex-1 flex flex-col overflow-hidden relative pb-[65px]' : 'hidden'}>
+              <div className={activeTab === 'games' ? 'flex-1 flex flex-col overflow-hidden relative' : 'hidden'}>
                 <LoufengTab 
                   wallet={wallet} 
                   profile={profile} 
@@ -243,7 +243,7 @@ export default function App() {
             )}
 
             {visitedTabs.chess && (
-              <div className={activeTab === 'chess' ? 'flex-1 flex flex-col overflow-hidden relative pb-[65px] bg-[#121212]' : 'hidden'}>
+              <div className={activeTab === 'chess' ? 'flex-1 flex flex-col overflow-hidden relative' : 'hidden'}>
                 <ChessTab 
                   wallet={wallet} 
                   profile={profile} 
@@ -256,7 +256,7 @@ export default function App() {
             )}
 
             {visitedTabs.profile && (
-              <div className={activeTab === 'profile' ? 'flex-1 flex flex-col overflow-hidden relative pb-[65px]' : 'hidden'}>
+              <div className={activeTab === 'profile' ? 'flex-1 flex flex-col overflow-hidden relative' : 'hidden'}>
                 <ProfileTab 
                   profile={profile} 
                   wallet={wallet} 
