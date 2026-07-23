@@ -6,7 +6,7 @@
  */
 
 import { VideoItem, ShortVideoItem, GameItem, ChessGameItem, WinnerAnnouncement, UserWallet, UserProfile } from './types';
-import { MOCK_LONG_VIDEOS, MOCK_SHORT_VIDEOS, MOCK_GAME_ITEMS, MOCK_CHESS_GAMES, MOCK_WINNERS } from './data';
+import { MOCK_LONG_VIDEOS, MOCK_SHORT_VIDEOS, MOCK_GAME_ITEMS, MOCK_CHESS_GAMES, MOCK_WINNERS, FALLBACK_COVER_IMAGES } from './data';
 
 // 接口响应统一包装格式
 export interface ApiResponse<T> {
@@ -326,28 +326,28 @@ export const BananaApiService = {
         ...all[0],
         id: 'curated_hot_1',
         title: '高颜值萝莉美少女 贴身互动诱惑 #清纯校花 #黑丝',
-        coverUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=500&q=80',
+        coverUrl: FALLBACK_COVER_IMAGES[0],
         likes: 189000,
       },
       {
         ...all[1],
         id: 'curated_hot_2',
         title: '36D乖巧小女友，一对豪乳大又软，温柔蜜桃极致娇嗔',
-        coverUrl: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=500&q=80',
+        coverUrl: FALLBACK_COVER_IMAGES[1],
         likes: 154000,
       },
       {
         ...all[2],
         id: 'curated_hot_3',
         title: '极品福利姬 奇丽自慰 极致黑丝美腿高跟大尺度',
-        coverUrl: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=500&q=80',
+        coverUrl: FALLBACK_COVER_IMAGES[0],
         likes: 112000,
       },
       {
         ...all[0],
         id: 'curated_hot_4',
         title: '美丽学生妹 想揉，诱惑制服裙底穿透视角',
-        coverUrl: 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=500&q=80',
+        coverUrl: FALLBACK_COVER_IMAGES[1],
         likes: 95000,
       }
     ];
@@ -357,25 +357,25 @@ export const BananaApiService = {
         ...all[1],
         id: 'curated_late_1',
         title: '为了成为模特，可爱的Alice接受潜规则大尺度调教',
-        coverUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=500&q=80',
+        coverUrl: FALLBACK_COVER_IMAGES[0],
       },
       {
         ...all[2],
         id: 'curated_late_2',
         title: '国漫AI玄衣 火车摇 极致骨骼抖动性感穿透',
-        coverUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=500&q=80',
+        coverUrl: FALLBACK_COVER_IMAGES[1],
       },
       {
         ...all[0],
         id: 'curated_late_3',
         title: '在家裸体拍视频勾引黄毛 隔壁王哥疯狂冲入',
-        coverUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=500&q=80',
+        coverUrl: FALLBACK_COVER_IMAGES[0],
       },
       {
         ...all[1],
         id: 'curated_late_4',
         title: '在KTV大战性感尤物，两闺蜜热情加入双重极乐',
-        coverUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=500&q=80',
+        coverUrl: FALLBACK_COVER_IMAGES[1],
       }
     ];
 
@@ -384,13 +384,13 @@ export const BananaApiService = {
         ...all[2],
         id: 'curated_disc_1',
         title: '【高保真VR】极品小护士更衣室春光外泄 极致沉浸体验',
-        coverUrl: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=500&q=80',
+        coverUrl: FALLBACK_COVER_IMAGES[0],
       },
       {
         ...all[0],
         id: 'curated_disc_2',
         title: '【水晶晶独家】3D双人同床：制服诱惑与性感兔女郎',
-        coverUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=500&q=80',
+        coverUrl: FALLBACK_COVER_IMAGES[1],
       }
     ];
 

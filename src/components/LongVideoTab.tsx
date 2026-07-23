@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
+import Hls from 'hls.js';
 import { VideoItem, UserProfile, UserWallet } from '../types';
-import { MOCK_LONG_VIDEOS } from '../data';
+import { MOCK_LONG_VIDEOS, DEFAULT_FALLBACK_VIDEO, handleImageError } from '../data';
 import { Play, Pause, FastForward, Rewind, Maximize2, Minimize2, Flame, Search, ChevronRight, Heart, Volume2, VolumeX, ArrowUp, Sparkles, AlertCircle, X, SlidersHorizontal, ArrowLeft, Clock, Gem } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { BananaApiService } from '../apiService';
@@ -32,6 +33,7 @@ export default function LongVideoTab({
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [showSearchInput, setShowSearchInput] = useState<boolean>(false);
   const [activeVideo, setActiveVideo] = useState<VideoItem | null>(null);
+  const [playerLoading, setPlayerLoading] = useState<boolean>(false);
   
   // Footprints (足迹) state backed by localStorage
   const [footprints, setFootprints] = useState<VideoItem[]>([]);
@@ -205,6 +207,60 @@ export default function LongVideoTab({
     }
   }, [isPlayerFullscreen, onFullscreenChange]);
 
+  // HLS stream playback & default video fallback
+  useEffect(() => {
+    if (!showPlayOverlay || !activeVideo || !longVideoRef.current) return;
+    const videoElement = longVideoRef.current;
+    const initialUrl = activeVideo.videoUrl || DEFAULT_FALLBACK_VIDEO;
+
+    let hls: Hls | null = null;
+
+    const playStream = (srcUrl: string) => {
+      const isHlsStream = srcUrl.includes('.m3u8') || srcUrl.includes('m3u8');
+      if (Hls.isSupported() && isHlsStream) {
+        if (hls) hls.destroy();
+        hls = new Hls({
+          enableWorker: true,
+          lowLatencyMode: true,
+        });
+        hls.loadSource(srcUrl);
+        hls.attachMedia(videoElement);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          videoElement.play().catch(() => {});
+        });
+        hls.on(Hls.Events.ERROR, (_, data) => {
+          if (data.fatal) {
+            if (srcUrl !== DEFAULT_FALLBACK_VIDEO) {
+              playStream(DEFAULT_FALLBACK_VIDEO);
+            } else if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+              hls?.startLoad();
+            } else {
+              hls?.destroy();
+            }
+          }
+        });
+      } else {
+        videoElement.src = srcUrl;
+        videoElement.play().catch(() => {});
+      }
+    };
+
+    playStream(initialUrl);
+
+    const handleError = () => {
+      if (videoElement.src !== DEFAULT_FALLBACK_VIDEO) {
+        playStream(DEFAULT_FALLBACK_VIDEO);
+      }
+    };
+
+    videoElement.addEventListener('error', handleError);
+
+    return () => {
+      videoElement.removeEventListener('error', handleError);
+      if (hls) hls.destroy();
+    };
+  }, [activeVideo?.id, activeVideo?.videoUrl, showPlayOverlay, playerLoading]);
+
   const togglePlay = () => {
     if (!longVideoRef.current) return;
     if (isPlaying) {
@@ -277,7 +333,6 @@ export default function LongVideoTab({
     setPlayerLoading(true);
     setTimeout(() => setPlayerLoading(false), 500);
   };
-  const [playerLoading, setPlayerLoading] = useState<boolean>(false);
 
   // Perfecting details page features states
   const [activeDetailTab, setActiveDetailTab] = useState<'info' | 'comments'>('info');
@@ -840,7 +895,7 @@ export default function LongVideoTab({
                 className="group bg-brand-card rounded-xl overflow-hidden border border-neutral-800 flex flex-col justify-between shadow-sm cursor-pointer"
               >
                 <div className="relative aspect-[16/10] bg-black overflow-hidden">
-                  <img src={video.coverUrl} alt={video.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" referrerPolicy="no-referrer" />
+                  <img src={video.coverUrl} alt={video.title} onError={handleImageError} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" referrerPolicy="no-referrer" />
                   <span className="absolute bottom-1 right-1 bg-black/75 px-1 py-0.2 rounded text-[8px] font-mono">{video.duration}</span>
                   {video.isVipOnly && <span className="absolute top-1 left-1 bg-brand-gold text-black text-[8px] font-black px-1 rounded">VIP</span>}
                 </div>
@@ -990,7 +1045,7 @@ export default function LongVideoTab({
                     className="group bg-brand-card rounded-xl overflow-hidden border border-neutral-800 flex flex-col justify-between shadow-sm cursor-pointer"
                   >
                     <div className="relative aspect-[16/10] bg-black overflow-hidden">
-                      <img src={video.coverUrl} alt={video.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" referrerPolicy="no-referrer" />
+                      <img src={video.coverUrl} alt={video.title} onError={handleImageError} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" referrerPolicy="no-referrer" />
                       <span className="absolute bottom-1 right-1 bg-black/75 px-1 py-0.2 rounded text-[8px] font-mono">{video.duration}</span>
                       {video.isVipOnly && <span className="absolute top-1 left-1 bg-brand-gold text-black text-[8px] font-black px-1 rounded">VIP</span>}
                     </div>
@@ -1479,7 +1534,7 @@ export default function LongVideoTab({
                       className="group bg-brand-card rounded-xl overflow-hidden border border-neutral-800 flex flex-col justify-between shadow-lg"
                     >
                       <div className="relative aspect-[16/10] bg-black overflow-hidden">
-                        <img src={video.coverUrl} alt={video.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" referrerPolicy="no-referrer" />
+                        <img src={video.coverUrl} alt={video.title} onError={handleImageError} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" referrerPolicy="no-referrer" />
                         <span className="absolute bottom-1 right-1 bg-black/75 px-1 py-0.2 rounded text-[8px] font-mono">{video.duration}</span>
                         {video.isVipOnly && <span className="absolute top-1 left-1 bg-brand-gold text-black text-[8px] font-black px-1 rounded">VIP</span>}
                       </div>
@@ -1551,7 +1606,7 @@ export default function LongVideoTab({
                       className="group bg-brand-card rounded-xl p-2.5 border border-neutral-800/80 flex gap-3 cursor-pointer hover:bg-neutral-800/80 transition-all"
                     >
                       <div className="relative w-28 aspect-[16/10] bg-black rounded-lg overflow-hidden shrink-0">
-                        <img src={video.coverUrl} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                        <img src={video.coverUrl} onError={handleImageError} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                         <span className="absolute bottom-1 right-1 bg-black/75 px-1 py-0.2 rounded text-[8px] font-mono">{video.duration}</span>
                       </div>
                       <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
@@ -1615,7 +1670,14 @@ export default function LongVideoTab({
                   {/* Native Video Stream */}
                   <video 
                     ref={longVideoRef}
-                    src={activeVideo.videoUrl} 
+                    src={activeVideo.videoUrl || DEFAULT_FALLBACK_VIDEO} 
+                    onError={(e) => {
+                      const v = e.currentTarget;
+                      if (v.src !== DEFAULT_FALLBACK_VIDEO) {
+                        v.src = DEFAULT_FALLBACK_VIDEO;
+                        v.play().catch(() => {});
+                      }
+                    }}
                     controls
                     autoPlay 
                     loop 
@@ -1808,7 +1870,7 @@ export default function LongVideoTab({
                           className="flex gap-3 bg-brand-card rounded-xl p-2.5 border border-neutral-800/80 cursor-pointer hover:bg-neutral-800/50 transition-all group"
                         >
                           <div className="relative w-32 aspect-[16/10] bg-black rounded-lg overflow-hidden shrink-0">
-                            <img src={video.coverUrl} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                            <img src={video.coverUrl} onError={handleImageError} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                             <span className="absolute bottom-1 right-1 bg-black/75 px-1 py-0.2 rounded text-[8px] font-mono">{video.duration}</span>
                             {video.isVipOnly && (
                               <span className="absolute top-1 left-1 bg-brand-gold text-black text-[7px] font-black px-1 rounded shadow">VIP</span>
@@ -2047,6 +2109,7 @@ export default function LongVideoTab({
                   <img 
                     src={shareVideoTarget.coverUrl} 
                     alt={shareVideoTarget.title}
+                    onError={handleImageError}
                     className="w-20 aspect-[16/10] object-cover rounded-lg border border-neutral-800 shrink-0"
                     referrerPolicy="no-referrer"
                   />

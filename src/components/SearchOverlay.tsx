@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronLeft, Play, Eye, Flame, Award } from 'lucide-react';
 import { VideoItem, ShortVideoItem, UserProfile } from '../types';
-import { MOCK_LONG_VIDEOS, MOCK_SHORT_VIDEOS } from '../data';
+import { MOCK_LONG_VIDEOS, MOCK_SHORT_VIDEOS, handleImageError } from '../data';
 
 interface SearchOverlayProps {
   isOpen: boolean;
@@ -338,6 +338,7 @@ export default function SearchOverlay({
                       <img
                         src={video.coverUrl}
                         alt={video.title}
+                        onError={handleImageError}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         referrerPolicy="no-referrer"
                         loading="lazy"
@@ -383,6 +384,7 @@ export default function SearchOverlay({
                     <img
                       src={video.coverUrl}
                       alt={video.title}
+                      onError={handleImageError}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       referrerPolicy="no-referrer"
                       loading="lazy"

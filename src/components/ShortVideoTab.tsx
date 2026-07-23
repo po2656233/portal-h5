@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
+import Hls from 'hls.js';
 import { ShortVideoItem, UserProfile, UserWallet, VideoComment } from '../types';
+import { DEFAULT_FALLBACK_VIDEO, handleImageError } from '../data';
 import { Heart, MessageCircle, Star, Maximize2, Minimize2, ChevronUp, ChevronDown, Plus, Music, Send, Check, Play, Pause, Search, ThumbsUp, Gift, Compass, Trophy, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { BananaApiService } from '../apiService';
@@ -260,6 +262,60 @@ export default function ShortVideoTab({
     });
 
   const currentVideo: ShortVideoItem | undefined = filteredVideoList[activeIdx] || filteredVideoList[0] || videoList[0];
+
+  // HLS stream playback & default video fallback for short videos
+  useEffect(() => {
+    if (!currentVideo || !videoRef.current || activeSubTab !== 'recommend') return;
+    const videoElement = videoRef.current;
+    const initialUrl = currentVideo.videoUrl || DEFAULT_FALLBACK_VIDEO;
+
+    let hls: Hls | null = null;
+
+    const playStream = (srcUrl: string) => {
+      const isHlsStream = srcUrl.includes('.m3u8') || srcUrl.includes('m3u8');
+      if (Hls.isSupported() && isHlsStream) {
+        if (hls) hls.destroy();
+        hls = new Hls({
+          enableWorker: true,
+          lowLatencyMode: true,
+        });
+        hls.loadSource(srcUrl);
+        hls.attachMedia(videoElement);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          if (isPlaying) videoElement.play().catch(() => {});
+        });
+        hls.on(Hls.Events.ERROR, (_, data) => {
+          if (data.fatal) {
+            if (srcUrl !== DEFAULT_FALLBACK_VIDEO) {
+              playStream(DEFAULT_FALLBACK_VIDEO);
+            } else if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+              hls?.startLoad();
+            } else {
+              hls?.destroy();
+            }
+          }
+        });
+      } else {
+        videoElement.src = srcUrl;
+        if (isPlaying) videoElement.play().catch(() => {});
+      }
+    };
+
+    playStream(initialUrl);
+
+    const handleError = () => {
+      if (videoElement.src !== DEFAULT_FALLBACK_VIDEO) {
+        playStream(DEFAULT_FALLBACK_VIDEO);
+      }
+    };
+
+    videoElement.addEventListener('error', handleError);
+
+    return () => {
+      videoElement.removeEventListener('error', handleError);
+      if (hls) hls.destroy();
+    };
+  }, [currentVideo?.id, currentVideo?.videoUrl, activeSubTab]);
 
   const handleNextVideo = () => {
     if (filteredVideoList.length === 0) return;
@@ -581,7 +637,14 @@ export default function ShortVideoTab({
             <video 
               ref={videoRef}
               key={currentVideo.id}
-              src={currentVideo.videoUrl} 
+              src={currentVideo.videoUrl || DEFAULT_FALLBACK_VIDEO} 
+              onError={(e) => {
+                const v = e.currentTarget;
+                if (v.src !== DEFAULT_FALLBACK_VIDEO) {
+                  v.src = DEFAULT_FALLBACK_VIDEO;
+                  if (isPlaying) v.play().catch(() => {});
+                }
+              }}
               autoPlay={isPlaying}
               loop 
               muted={false} // Allow standard audio in production
@@ -824,7 +887,7 @@ export default function ShortVideoTab({
                   className="group bg-brand-card rounded-xl overflow-hidden border border-neutral-800 flex flex-col justify-between shadow cursor-pointer"
                 >
                   <div className="relative aspect-[3/4] bg-black overflow-hidden">
-                    <img src={video.coverUrl} alt={video.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" referrerPolicy="no-referrer" />
+                    <img src={video.coverUrl} alt={video.title} onError={handleImageError} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" referrerPolicy="no-referrer" />
                     
                     {/* Rank badges NO.1 - NO.4 */}
                     <span className={`absolute top-2 left-2 text-[9px] font-black px-2 py-0.5 rounded-full shadow-md ${
@@ -908,7 +971,7 @@ export default function ShortVideoTab({
                   className="group bg-brand-card rounded-xl overflow-hidden border border-neutral-800 flex flex-col justify-between shadow cursor-pointer"
                 >
                   <div className="relative aspect-[3/4] bg-black overflow-hidden">
-                    <img src={video.coverUrl} alt={video.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" referrerPolicy="no-referrer" />
+                    <img src={video.coverUrl} alt={video.title} onError={handleImageError} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" referrerPolicy="no-referrer" />
                     <span className="absolute bottom-1.5 right-1.5 bg-black/60 px-1 py-0.2 rounded text-[8px] font-mono">NEW</span>
                   </div>
                   <div className="p-2 space-y-1">
@@ -936,7 +999,7 @@ export default function ShortVideoTab({
                   className="bg-brand-card border border-neutral-800 hover:border-brand-purple/30 rounded-xl p-3 flex gap-3.5 cursor-pointer group"
                 >
                   <div className="w-20 h-24 bg-black rounded-lg overflow-hidden shrink-0">
-                    <img src={video.coverUrl} alt={video.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" referrerPolicy="no-referrer" />
+                    <img src={video.coverUrl} alt={video.title} onError={handleImageError} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" referrerPolicy="no-referrer" />
                   </div>
                   <div className="flex-1 flex flex-col justify-between">
                     <div>
