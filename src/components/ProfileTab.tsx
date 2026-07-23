@@ -193,7 +193,7 @@ export default function ProfileTab({
         shortVideoTickets: 28
       });
 
-      window.customAlert('🔑 登录成功', `欢迎老司机 [${finalUsername}] 重返某某社区！您的历史缓存已自动同步。`);
+      window.customAlert('🔑 登录成功', `欢迎老司机 [${finalUsername}] 重返水晶晶社区！您的历史缓存已自动同步。`);
       setShowLoginPanel(false);
     }
   };
@@ -262,7 +262,7 @@ export default function ProfileTab({
               </div>
               
               <h3 className="text-base font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-neutral-100 to-gray-300">
-                某某视频平台
+                水晶晶视频平台
               </h3>
               <p className="text-[9px] text-brand-gold font-bold mt-1 tracking-widest uppercase">Premium Cinema Portal</p>
             </div>
@@ -571,7 +571,7 @@ export default function ProfileTab({
             <div className="flex items-center gap-2">
               <Award className="w-5 h-5 text-brand-gold" />
               <div>
-                <h4 className="text-xs font-black text-brand-gold">某某观影尊享俱乐部</h4>
+                <h4 className="text-xs font-black text-brand-gold">水晶晶观影尊享俱乐部</h4>
                 <p className="text-[9px] text-gray-400">
                   会员到期：<span className="text-brand-gold font-bold">{profile.vipExpiry}</span>
                   {` (剩余 ${profile.isLoggedIn ? profile.vipDaysLeft : 0} 天)`}
@@ -701,7 +701,7 @@ export default function ProfileTab({
             { label: '意见反馈', icon: <HelpCircle className="w-5 h-5 text-sky-400" />, action: () => {
               window.customPrompt(
                 '✍️ 意见与建议反馈',
-                '请写下您对某某社区的宝贵意见或遇到的Bug（我们会第一时间在后台收集并派送 5 元体验金奖励）：',
+                '请写下您对水晶晶社区的宝贵意见或遇到的Bug（我们会第一时间在后台收集并派送 5 元体验金奖励）：',
                 (feedback) => {
                   if (feedback && feedback.trim()) {
                     onUpdateWallet({ mainBalance: wallet.mainBalance + 5 });
@@ -773,7 +773,7 @@ export default function ProfileTab({
                     try {
                       const hist = localStorage.getItem('banana_history');
                       const items = hist ? JSON.parse(hist) : [
-                        { id: 'h1', title: '【某某头条】全网最新制服诱惑狂欢特辑', tag: '最新', type: '长视频' },
+                        { id: 'h1', title: '【水晶晶头条】全网最新制服诱惑狂欢特辑', tag: '最新', type: '长视频' },
                         { id: 'h2', title: '清纯少女白领诱惑：丝袜高跟初体验', tag: '热门', type: '长视频' }
                       ];
                       return (
@@ -876,7 +876,7 @@ export default function ProfileTab({
                       }
                     }},
                     { desc: '✈️ 同城寻欢匹配分享', bonus: '+500 模拟金币', status: '去匹配', action: () => {
-                      navigator.clipboard.writeText(`某某社区同城寻欢定位已开启！我的邀请码为：${profile.inviteCode}`);
+                      navigator.clipboard.writeText(`水晶晶社区同城寻欢定位已开启！我的邀请码为：${profile.inviteCode}`);
                       onUpdateWallet({ gameBalance: wallet.gameBalance + 500 });
                       alert('🔗 分享文案已成功复制！额外赠送您 ￥500.00 娱乐游戏模拟备用金！');
                     }}
@@ -952,8 +952,8 @@ export default function ProfileTab({
                     <div className="flex justify-between items-center">
                       <span>播放线路选择</span>
                       <select className="bg-brand-card border border-neutral-800 text-[10px] rounded p-1 text-brand-gold focus:outline-none">
-                        <option>某某CDN专线 1 (极速)</option>
-                        <option>某某CDN专线 2 (超清)</option>
+                        <option>水晶晶CDN专线 1 (极速)</option>
+                        <option>水晶晶CDN专线 2 (超清)</option>
                         <option>海外中转专线 3 (抗封锁)</option>
                       </select>
                     </div>
@@ -1113,7 +1113,7 @@ export default function ProfileTab({
                           <button 
                             onClick={() => {
                               navigator.clipboard.writeText(girl.wechat);
-                              alert(`💚 已成功复制【${girl.name}】的微信号/QQ号：${girl.wechat}！\n\n快去添加好友约见吧，验证请写“某某老司机”。`);
+                              alert(`💚 已成功复制【${girl.name}】的微信号/QQ号：${girl.wechat}！\n\n快去添加好友约见吧，验证请写“水晶晶老司机”。`);
                             }}
                             className="py-1 px-2.5 rounded bg-neutral-800 hover:bg-neutral-700 text-gray-300 font-bold text-[9px]"
                           >
@@ -1172,7 +1172,7 @@ export default function ProfileTab({
                       setTimeout(() => {
                         const answers = [
                           "🍒 哇，哥哥说话真幽默！我今天刚好穿了你喜欢的短裙，要不咱们加个微信，你把地址发我好吗？",
-                          "🧸 嗯嗯，我平时也超喜欢看电影的！特别是某某视频上的原创大片。今晚我去找你，咱们一块看好不好？",
+                          "🧸 嗯嗯，我平时也超喜欢看电影的！特别是水晶晶视频上的原创大片。今晚我去找你，咱们一块看好不好？",
                           "🥂 哥哥，我已经洗好澡在酒店等你了哦。加微信聊好吗，我的微信号是：" + activeChattingGirl.wechat,
                         ];
                         const randomAns = answers[Math.floor(Math.random() * answers.length)];

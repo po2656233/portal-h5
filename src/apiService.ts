@@ -76,7 +76,7 @@ export const BananaApiService = {
       message: '获取资料成功',
       data: {
         isLoggedIn: true,
-        username: '某某老司机_666',
+        username: '水晶晶老司机_666',
         avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
         vipExpiry: '2026-08-20',
         vipDaysLeft: 35,
@@ -214,7 +214,7 @@ export const BananaApiService = {
     return {
       code: 200,
       message: '成功',
-      data: ['某某头条', '制服诱惑', '清纯少女', '无码视频', '某某原创', '自拍偷拍', '网红主播', '海外精品']
+      data: ['水晶晶头条', '水晶晶短剧', '制服诱惑', '清纯少女', '无码视频', '自拍偷拍', '网红主播', '海外精品']
     };
   },
 
@@ -389,7 +389,7 @@ export const BananaApiService = {
       {
         ...all[0],
         id: 'curated_disc_2',
-        title: '【某某独家】3D双人同床：制服诱惑与性感兔女郎',
+        title: '【水晶晶独家】3D双人同床：制服诱惑与性感兔女郎',
         coverUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=500&q=80',
       }
     ];

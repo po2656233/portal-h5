@@ -4,7 +4,7 @@ import { MOCK_WINNERS } from '../data';
 import { 
   Award, RefreshCw, Volume2, Coins, CreditCard, ChevronRight,
   Gift, Flame, Clock, Video, Trophy, Grid, Sparkles, Gamepad2, 
-  HelpCircle, CheckCircle2, User, Play, X, Heart
+  HelpCircle, CheckCircle2, User, Play, X, Heart, Gem
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -295,14 +295,33 @@ export default function ChessTab({
       {/* 1. HEADER WITH GRADIENT (Matching Figure 1 exactly) */}
       <div className="p-4 pt-5 pb-3 bg-gradient-to-r from-[#9400d3] via-[#ff1493] to-[#1e90ff] text-white space-y-3.5 shrink-0 relative">
         <div className="flex items-center justify-between">
-          {/* Logo */}
-          <div className="flex items-center gap-1.5">
-            <span className="text-3xl animate-bounce">🔥</span>
-            <div>
-              <h1 className="text-xl font-black text-yellow-300 tracking-tight flex items-center gap-1 font-sans">
-                某某视频
+          {/* Logo + Title */}
+          <div className="flex items-center gap-2.5">
+            {/* Beautified Crystal Gem Logo Icon */}
+            <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-white/15 backdrop-blur-sm border border-white/30 shadow-sm shrink-0">
+              <Gem className="w-4.5 h-4.5 text-amber-300 drop-shadow-[0_0_6px_rgba(251,191,36,0.7)]" />
+            </div>
+
+            <div className="flex flex-col justify-center w-fit">
+              <h1 
+                className="text-xl sm:text-2xl font-black tracking-tight select-none font-sans leading-none whitespace-nowrap"
+                style={{
+                  backgroundImage: `linear-gradient(135deg, #fef08a 0%, #38bdf8 30%, #c084fc 60%, #f472b6 85%, #fef08a 100%), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 3h12l4 6-10 12L2 9z'/%3E%3C/svg%3E")`,
+                  backgroundSize: '200% 200%, 16px 16px',
+                  backgroundBlendMode: 'overlay',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}
+              >
+                水晶晶视频
               </h1>
-              <p className="text-[9px] text-white/90 uppercase font-mono tracking-wider">Moumou Studio</p>
+              {/* "Crystal Vision" spanned to exact full width of "水晶晶视频" so 'n' ends at '频' */}
+              <div 
+                className="w-full flex justify-between items-center text-[8.5px] font-serif font-bold text-cyan-100 mt-1 select-none leading-none"
+                style={{ fontFamily: 'Georgia, Cambria, "Times New Roman", Times, serif' }}
+              >
+                <span>C</span><span>r</span><span>y</span><span>s</span><span>t</span><span>a</span><span>l</span><span className="w-1 inline-block"></span><span>V</span><span>i</span><span>s</span><span>i</span><span>o</span><span>n</span>
+              </div>
             </div>
           </div>
 

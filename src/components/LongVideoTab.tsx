@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { VideoItem, UserProfile, UserWallet } from '../types';
 import { MOCK_LONG_VIDEOS } from '../data';
-import { Play, Pause, FastForward, Rewind, Maximize2, Minimize2, Flame, Search, ChevronRight, Heart, Volume2, VolumeX, ArrowUp, Sparkles, AlertCircle, X, SlidersHorizontal, ArrowLeft, Clock } from 'lucide-react';
+import { Play, Pause, FastForward, Rewind, Maximize2, Minimize2, Flame, Search, ChevronRight, Heart, Volume2, VolumeX, ArrowUp, Sparkles, AlertCircle, X, SlidersHorizontal, ArrowLeft, Clock, Gem } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { BananaApiService } from '../apiService';
 import SearchOverlay from './SearchOverlay';
@@ -26,8 +26,8 @@ export default function LongVideoTab({
   onFullscreenChange
 }: LongVideoTabProps) {
   // Navigation tabs at the top (Image 4)
-  const topTabs = ['某某头条', '某某原创', '自拍偷拍', '制服诱惑', '清纯少女', '无码视频'];
-  const [activeTopTab, setActiveTopTab] = useState<string>('某某头条');
+  const topTabs = ['水晶晶头条', '水晶晶短剧', '自拍偷拍', '制服诱惑', '清纯少女', '无码视频'];
+  const [activeTopTab, setActiveTopTab] = useState<string>('水晶晶头条');
   
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [showSearchInput, setShowSearchInput] = useState<boolean>(false);
@@ -570,10 +570,10 @@ export default function LongVideoTab({
         // Row 1: 类型
         if (filterType !== '全部类型') {
           // Map tags or categories
-          if (filterType === '某某原创' && v.category !== '某某原创' && v.category !== '香蕉原创' && !v.title.includes('原创')) return false;
+          if (filterType === '水晶晶短剧' && v.category !== '水晶晶短剧' && v.category !== '水晶晶原创' && v.category !== '短剧' && v.category !== '香蕉原创' && !v.title.includes('短剧') && !v.title.includes('原创')) return false;
           if (filterType === '制服诱惑' && v.category !== '制服诱惑' && !v.title.includes('制服')) return false;
           if (filterType === '清纯少女' && v.category !== '清纯少女' && v.category !== '清纯校花' && !v.title.includes('清纯') && !v.title.includes('少女')) return false;
-          if (filterType === '某某头条' && v.category !== '某某头条' && v.category !== '香蕉头条' && !v.title.includes('头条')) return false;
+          if (filterType === '水晶晶头条' && v.category !== '水晶晶头条' && v.category !== '香蕉头条' && !v.title.includes('头条')) return false;
         }
 
         // Row 2: 地区
@@ -596,17 +596,17 @@ export default function LongVideoTab({
         }
       } else {
         // Main page tab selection
-        if (activeTopTab === '某某头条') {
+        if (activeTopTab === '水晶晶头条') {
           // Show headline videos
-          return v.category === '香蕉头条' || v.category === '某某头条' || v.title.includes('头条');
+          return v.category === '香蕉头条' || v.category === '水晶晶头条' || v.title.includes('头条');
+        } else if (activeTopTab === '水晶晶短剧') {
+          return v.category === '水晶晶短剧' || v.category === '短剧' || v.category === '香蕉原创' || v.category === '水晶晶原创' || v.title.includes('短剧') || v.title.includes('原创');
         } else if (activeTopTab === '制服诱惑') {
           return v.category === '制服诱惑' || v.title.includes('制服');
         } else if (activeTopTab === '清纯少女') {
           return v.category === '清纯校花' || v.title.includes('清纯') || v.title.includes('少女');
         } else if (activeTopTab === '无码视频') {
           return v.title.includes('无码') || v.id === 'l5';
-        } else if (activeTopTab === '某某原创') {
-          return v.category === '香蕉原创' || v.category === '某某原创' || v.title.includes('原创');
         } else if (activeTopTab === '自拍偷拍') {
           return v.category === '自拍交流' || v.title.includes('自拍');
         }
@@ -656,7 +656,7 @@ export default function LongVideoTab({
   };
 
   // Define section-specific video lists for the main screen feed (Image 2 & 3 style)
-  const bananaHeadlines = MOCK_LONG_VIDEOS.filter(v => v.category === '香蕉头条' || v.category === '某某头条' || v.title.includes('头条'));
+  const bananaHeadlines = MOCK_LONG_VIDEOS.filter(v => v.category === '香蕉头条' || v.category === '水晶晶头条' || v.title.includes('头条'));
   const uniformVideos = MOCK_LONG_VIDEOS.filter(v => v.category === '制服诱惑' || v.title.includes('制服'));
   const pureMaidenVideos = MOCK_LONG_VIDEOS.filter(v => v.category === '清纯校花' || v.title.includes('清纯'));
   const uncensoredVideos = MOCK_LONG_VIDEOS.filter(v => v.title.includes('无码') || v.id === 'l5');
@@ -670,7 +670,7 @@ export default function LongVideoTab({
           <span className="text-xl">🔥</span>
           <div>
             <p className="font-bold text-white flex items-center gap-1">
-              某某头条官方影视 <span className="text-[9px] bg-brand-gold text-black px-1.5 py-0.5 rounded font-black">PRO</span>
+              水晶晶-官方影视 <span className="text-[9px] bg-brand-gold text-black px-1.5 py-0.5 rounded font-black">PRO</span>
             </p>
             <p className="text-[10px] text-purple-200">极速线路 · 超清画质 · 无感翻墙</p>
           </div>
@@ -686,9 +686,34 @@ export default function LongVideoTab({
 
       {/* 2. Brand Studio Header with icons (Image 4 style) */}
       <div className="p-4 pb-2 bg-brand-bg flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="text-2xl font-black bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent">某某视频</span>
-          <span className="text-[10px] uppercase font-mono tracking-wider text-gray-500 border border-neutral-800 px-1.5 rounded">Moumou Studio</span>
+        <div className="flex items-center gap-2.5">
+          {/* Beautified Crystal Gem Logo Icon */}
+          <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-neutral-900 via-slate-900 to-black border border-cyan-400/30 shadow-[0_0_8px_rgba(34,211,238,0.25)] shrink-0">
+            <Gem className="w-4.5 h-4.5 text-amber-300 drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" />
+          </div>
+
+          <div className="flex flex-col justify-center w-fit">
+            {/* "水晶晶视频" Title */}
+            <h1 
+              className="text-xl sm:text-2xl font-black tracking-tight select-none font-sans leading-none whitespace-nowrap"
+              style={{
+                backgroundImage: `linear-gradient(135deg, #fef08a 0%, #38bdf8 30%, #c084fc 60%, #f472b6 85%, #fef08a 100%), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 3h12l4 6-10 12L2 9z'/%3E%3C/svg%3E")`,
+                backgroundSize: '200% 200%, 16px 16px',
+                backgroundBlendMode: 'overlay',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}
+            >
+              水晶晶视频
+            </h1>
+            {/* "Crystal Vision" spanned to exact full width of "水晶晶视频" so 'n' ends at '频' */}
+            <div 
+              className="w-full flex justify-between items-center text-[8.5px] font-serif font-bold text-cyan-200/90 mt-1 select-none leading-none"
+              style={{ fontFamily: 'Georgia, Cambria, "Times New Roman", Times, serif' }}
+            >
+              <span>C</span><span>r</span><span>y</span><span>s</span><span>t</span><span>a</span><span>l</span><span className="w-1 inline-block"></span><span>V</span><span>i</span><span>s</span><span>i</span><span>o</span><span>n</span>
+            </div>
+          </div>
         </div>
         <div className="flex items-center gap-2.5">
           <button 
@@ -802,7 +827,7 @@ export default function LongVideoTab({
       </div>
 
       {/* 5. Main Feed Sections Layout */}
-      {activeTopTab !== '某某头条' || searchQuery ? (
+      {activeTopTab !== '水晶晶头条' || searchQuery ? (
         <div className="p-4">
           <h3 className="text-xs font-black tracking-wider text-gray-400 mb-3">
             {searchQuery ? `🔍 搜索结果: "${searchQuery}"` : `📂 ${activeTopTab} 影片列表`}
@@ -1309,7 +1334,7 @@ export default function LongVideoTab({
               {/* Row 1: 类型 */}
               <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
                 <span className="text-[10px] font-black text-brand-purple shrink-0 bg-brand-purple/10 px-2 py-1 rounded border border-brand-purple/20">类型</span>
-                {['全部类型', '某某原创', '制服诱惑', '清纯少女', '辣妹大奶', '女同'].map((item) => (
+                {['全部类型', '水晶晶短剧', '制服诱惑', '清纯少女', '辣妹大奶', '女同'].map((item) => (
                   <button
                     key={item}
                     onClick={() => setFilterType(item)}
@@ -1583,7 +1608,7 @@ export default function LongVideoTab({
               {playerLoading ? (
                 <div className="flex-1 flex flex-col items-center justify-center gap-3">
                   <div className="w-10 h-10 rounded-full border-2 border-pink-500 border-t-transparent animate-spin"></div>
-                  <span className="text-xs text-pink-500 animate-pulse">某某云播专线极速分流中...</span>
+                  <span className="text-xs text-pink-500 animate-pulse">水晶晶云播专线极速分流中...</span>
                 </div>
               ) : (
                 <div className="relative w-full h-full flex flex-col justify-between overflow-hidden bg-black">

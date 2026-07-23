@@ -1,7 +1,8 @@
 import { VideoItem, ShortVideoItem, GameItem, ChessGameItem, WinnerAnnouncement } from './types';
 
 export const LONG_VIDEO_CATEGORIES = [
-  '某某头条',
+  '水晶晶头条',
+  '水晶晶短剧',
   '自拍交流',
   '制服诱惑',
   '清纯校花',
@@ -167,6 +168,45 @@ export const MOCK_LONG_VIDEOS: VideoItem[] = [
     duration: '18:55',
     tags: ['动漫', '学园', '黑丝', '密室'],
     isVipOnly: true
+  },
+  {
+    id: 'l_dj1',
+    title: '【热门短剧】《龙王赘婿之逆天爆杀》全80集大结局连播爽剧',
+    category: '短剧',
+    coverUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=500&q=80',
+    gifUrl: 'https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3ZpcjJzdGptZnJpdXB0ZTN3ZWZmaThpdXZzNTY5dm5mOWt0NzA5MyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l0ExdFnI6g8A6SclO/giphy.gif',
+    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-beautiful-woman-posing-with-colorful-light-40191-large.mp4',
+    views: 489200,
+    favorites: 23100,
+    duration: '45:20',
+    tags: ['短剧', '龙王', '赘婿', '爽剧'],
+    isVipOnly: false
+  },
+  {
+    id: 'l_dj2',
+    title: '【爆火短剧】《霸道女总裁的超凡贴身保镖》全集高能反转',
+    category: '短剧',
+    coverUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=500&q=80',
+    gifUrl: 'https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3ZpcjJzdGptZnJpdXB0ZTN3ZWZmaThpdXZzNTY5dm5mOWt0NzA5MyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l0ExdFnI6g8A6SclO/giphy.gif',
+    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-woman-posing-in-neon-light-40192-large.mp4',
+    views: 325400,
+    favorites: 18400,
+    duration: '38:15',
+    tags: ['短剧', '霸总', '都市', '高能'],
+    isVipOnly: true
+  },
+  {
+    id: 'l_dj3',
+    title: '【热播短剧】《绝世神医下山：开局九份婚书》全100集未删减版',
+    category: '短剧',
+    coverUrl: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=500&q=80',
+    gifUrl: 'https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3ZpcjJzdGptZnJpdXB0ZTN3ZWZmaThpdXZzNTY5dm5mOWt0NzA5MyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l0ExdFnI6g8A6SclO/giphy.gif',
+    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-fashion-girl-posing-under-neon-sign-40193-large.mp4',
+    views: 298000,
+    favorites: 14200,
+    duration: '52:10',
+    tags: ['短剧', '神医', '修仙', '婚书'],
+    isVipOnly: false
   },
   {
     id: 'l13',

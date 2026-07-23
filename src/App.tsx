@@ -18,7 +18,7 @@ export default function App() {
   const [profile, setProfile] = useState<UserProfile>({
     id: 'user_9527',
     isLoggedIn: true,
-    username: '某某老司机_666',
+    username: '水晶晶老司机_666',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
     vipExpiry: '2026-08-20',
     vipDaysLeft: 35,
@@ -36,6 +36,18 @@ export default function App() {
   });
 
   const [activeTab, setActiveTab] = useState<'long' | 'short' | 'games' | 'chess' | 'profile'>('long');
+
+  const handleNavTabChange = (tab: 'long' | 'short' | 'games' | 'chess' | 'profile') => {
+    if (activeTab === tab) return;
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      try {
+        navigator.vibrate(12);
+      } catch {
+        // ignore fallback
+      }
+    }
+    setActiveTab(tab);
+  };
 
   // Track which tabs have been visited to enable lazy-mounting (code only downloads when tab is clicked)
   const [visitedTabs, setVisitedTabs] = useState<Record<string, boolean>>({ long: true });
@@ -139,7 +151,7 @@ export default function App() {
     // Global override of standard window.alert!
     window.alert = (message) => {
       // Attempt to extract title/rewards indicators
-      let title = '🎬 某某社区通知';
+      let title = '🎬 水晶晶社区通知';
       if (message.includes('🎉') || message.includes('💰') || message.includes('🔥') || message.includes('🎰') || message.includes('👑')) {
         title = '🎉 恭喜获得福利';
       } else if (message.includes('⚠️') || message.includes('❌') || message.includes('🔒')) {
@@ -203,71 +215,72 @@ export default function App() {
               </div>
             </div>
           }>
-            {visitedTabs.long && (
-              <div className={activeTab === 'long' ? 'flex-1 flex flex-col overflow-hidden relative' : 'hidden'}>
-                <LongVideoTab 
-                  profile={profile} 
-                  wallet={wallet} 
-                  onUpdateWallet={handleUpdateWallet} 
-                  onUpdateProfile={handleUpdateProfile} 
-                  onOpenTopup={handleOpenTopup}
-                  onOpenAiScanner={() => setIsAiScannerOpen(true)}
-                  onFullscreenChange={handleLongFullscreenChange}
-                />
-              </div>
-            )}
+            <AnimatePresence mode="wait">
+              <motion.div 
+                key={activeTab}
+                initial={{ opacity: 0.82, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0.82, y: -4 }}
+                transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+                className="flex-1 flex flex-col overflow-hidden relative w-full h-full"
+              >
+                {activeTab === 'long' && visitedTabs.long && (
+                  <LongVideoTab 
+                    profile={profile} 
+                    wallet={wallet} 
+                    onUpdateWallet={handleUpdateWallet} 
+                    onUpdateProfile={handleUpdateProfile} 
+                    onOpenTopup={handleOpenTopup}
+                    onOpenAiScanner={() => setIsAiScannerOpen(true)}
+                    onFullscreenChange={handleLongFullscreenChange}
+                  />
+                )}
 
-            {visitedTabs.short && (
-              <div className={activeTab === 'short' ? 'flex-1 flex flex-col overflow-hidden relative' : 'hidden'}>
-                <ShortVideoTab 
-                  profile={profile} 
-                  wallet={wallet} 
-                  onUpdateWallet={handleUpdateWallet} 
-                  onUpdateProfile={handleUpdateProfile} 
-                  onOpenTopup={handleOpenTopup}
-                  onFullscreenChange={handleShortFullscreenChange}
-                />
-              </div>
-            )}
+                {activeTab === 'short' && visitedTabs.short && (
+                  <ShortVideoTab 
+                    profile={profile} 
+                    wallet={wallet} 
+                    onUpdateWallet={handleUpdateWallet} 
+                    onUpdateProfile={handleUpdateProfile} 
+                    onOpenTopup={handleOpenTopup}
+                    onFullscreenChange={handleShortFullscreenChange}
+                  />
+                )}
 
-            {visitedTabs.games && (
-              <div className={activeTab === 'games' ? 'flex-1 flex flex-col overflow-hidden relative' : 'hidden'}>
-                <LoufengTab 
-                  wallet={wallet} 
-                  profile={profile} 
-                  onUpdateWallet={handleUpdateWallet} 
-                  onUpdateProfile={handleUpdateProfile} 
-                  onOpenTopup={handleOpenTopup}
-                />
-              </div>
-            )}
+                {activeTab === 'games' && visitedTabs.games && (
+                  <LoufengTab 
+                    wallet={wallet} 
+                    profile={profile} 
+                    onUpdateWallet={handleUpdateWallet} 
+                    onUpdateProfile={handleUpdateProfile} 
+                    onOpenTopup={handleOpenTopup}
+                  />
+                )}
 
-            {visitedTabs.chess && (
-              <div className={activeTab === 'chess' ? 'flex-1 flex flex-col overflow-hidden relative' : 'hidden'}>
-                <ChessTab 
-                  wallet={wallet} 
-                  profile={profile} 
-                  onUpdateWallet={handleUpdateWallet} 
-                  onUpdateProfile={handleUpdateProfile} 
-                  onOpenTopup={handleOpenTopup}
-                  onOpenCustomerService={() => setIsCustomerServiceOpen(true)}
-                />
-              </div>
-            )}
+                {activeTab === 'chess' && visitedTabs.chess && (
+                  <ChessTab 
+                    wallet={wallet} 
+                    profile={profile} 
+                    onUpdateWallet={handleUpdateWallet} 
+                    onUpdateProfile={handleUpdateProfile} 
+                    onOpenTopup={handleOpenTopup}
+                    onOpenCustomerService={() => setIsCustomerServiceOpen(true)}
+                  />
+                )}
 
-            {visitedTabs.profile && (
-              <div className={activeTab === 'profile' ? 'flex-1 flex flex-col overflow-hidden relative' : 'hidden'}>
-                <ProfileTab 
-                  profile={profile} 
-                  wallet={wallet} 
-                  onUpdateWallet={handleUpdateWallet} 
-                  onUpdateProfile={handleUpdateProfile} 
-                  onOpenTopup={handleOpenTopup}
-                  onOpenAiScanner={() => setIsAiScannerOpen(true)}
-                  onOpenCustomerService={() => setIsCustomerServiceOpen(true)}
-                />
-              </div>
-            )}
+                {activeTab === 'profile' && visitedTabs.profile && (
+                  <ProfileTab 
+                    profile={profile} 
+                    wallet={wallet} 
+                    onUpdateWallet={handleUpdateWallet} 
+                    onUpdateProfile={handleUpdateProfile} 
+                    onOpenTopup={handleOpenTopup}
+                    onOpenAiScanner={() => setIsAiScannerOpen(true)}
+                    onOpenCustomerService={() => setIsCustomerServiceOpen(true)}
+                  />
+                )}
+              </motion.div>
+            </AnimatePresence>
           </Suspense>
         </div>
 
@@ -277,61 +290,61 @@ export default function App() {
             
             <button
               id="nav-long-video"
-              onClick={() => setActiveTab('long')}
-              className={`flex flex-col items-center gap-1 py-1 px-3 transition-all relative ${activeTab === 'long' ? 'text-white font-bold' : 'hover:text-gray-200'}`}
+              onClick={() => handleNavTabChange('long')}
+              className={`flex flex-col items-center gap-1 py-1 px-3 transition-all relative active:scale-90 active:translate-y-0.5 duration-100 ease-out select-none ${activeTab === 'long' ? 'text-white font-bold' : 'hover:text-gray-200'}`}
             >
               <Home className={`w-5 h-5 ${activeTab === 'long' ? 'text-brand-purple scale-110' : ''} transition-transform`} />
               <span className="text-[10px]">首页</span>
               {activeTab === 'long' && (
-                <span className="absolute bottom-0 w-4 h-0.5 bg-brand-purple rounded-full"></span>
+                <motion.span layoutId="activeTabIndicator" className="absolute bottom-0 w-4 h-0.5 bg-brand-purple rounded-full" />
               )}
             </button>
 
             <button
               id="nav-short-video"
-              onClick={() => setActiveTab('short')}
-              className={`flex flex-col items-center gap-1 py-1 px-3 transition-all relative ${activeTab === 'short' ? 'text-white font-bold' : 'hover:text-gray-200'}`}
+              onClick={() => handleNavTabChange('short')}
+              className={`flex flex-col items-center gap-1 py-1 px-3 transition-all relative active:scale-90 active:translate-y-0.5 duration-100 ease-out select-none ${activeTab === 'short' ? 'text-white font-bold' : 'hover:text-gray-200'}`}
             >
               <PlayCircle className={`w-5 h-5 ${activeTab === 'short' ? 'text-brand-purple scale-110' : ''} transition-transform`} />
               <span className="text-[10px]">短视频</span>
               {activeTab === 'short' && (
-                <span className="absolute bottom-0 w-4 h-0.5 bg-brand-purple rounded-full"></span>
+                <motion.span layoutId="activeTabIndicator" className="absolute bottom-0 w-4 h-0.5 bg-brand-purple rounded-full" />
               )}
             </button>
 
             <button
               id="nav-chess"
-              onClick={() => setActiveTab('chess')}
-              className={`flex flex-col items-center gap-1 py-1 px-3 transition-all relative ${activeTab === 'chess' ? 'text-white font-bold' : 'hover:text-gray-200'}`}
+              onClick={() => handleNavTabChange('chess')}
+              className={`flex flex-col items-center gap-1 py-1 px-3 transition-all relative active:scale-90 active:translate-y-0.5 duration-100 ease-out select-none ${activeTab === 'chess' ? 'text-white font-bold' : 'hover:text-gray-200'}`}
             >
               <Gamepad2 className={`w-5 h-5 ${activeTab === 'chess' ? 'text-brand-purple scale-110' : ''} transition-transform`} />
               <span className="text-[10px]">游戏</span>
               {activeTab === 'chess' && (
-                <span className="absolute bottom-0 w-4 h-0.5 bg-brand-purple rounded-full"></span>
+                <motion.span layoutId="activeTabIndicator" className="absolute bottom-0 w-4 h-0.5 bg-brand-purple rounded-full" />
               )}
             </button>
 
             <button
               id="nav-games"
-              onClick={() => setActiveTab('games')}
-              className={`flex flex-col items-center gap-1 py-1 px-3 transition-all relative ${activeTab === 'games' ? 'text-white font-bold' : 'hover:text-gray-200'}`}
+              onClick={() => handleNavTabChange('games')}
+              className={`flex flex-col items-center gap-1 py-1 px-3 transition-all relative active:scale-90 active:translate-y-0.5 duration-100 ease-out select-none ${activeTab === 'games' ? 'text-white font-bold' : 'hover:text-gray-200'}`}
             >
               <Venus className={`w-5 h-5 ${activeTab === 'games' ? 'text-brand-purple scale-110' : ''} transition-transform`} />
               <span className="text-[10px]">楼凤</span>
               {activeTab === 'games' && (
-                <span className="absolute bottom-0 w-4 h-0.5 bg-brand-purple rounded-full"></span>
+                <motion.span layoutId="activeTabIndicator" className="absolute bottom-0 w-4 h-0.5 bg-brand-purple rounded-full" />
               )}
             </button>
 
             <button
               id="nav-profile"
-              onClick={() => setActiveTab('profile')}
-              className={`flex flex-col items-center gap-1 py-1 px-3 transition-all relative ${activeTab === 'profile' ? 'text-white font-bold' : 'hover:text-gray-200'}`}
+              onClick={() => handleNavTabChange('profile')}
+              className={`flex flex-col items-center gap-1 py-1 px-3 transition-all relative active:scale-90 active:translate-y-0.5 duration-100 ease-out select-none ${activeTab === 'profile' ? 'text-white font-bold' : 'hover:text-gray-200'}`}
             >
               <User className={`w-5 h-5 ${activeTab === 'profile' ? 'text-brand-purple scale-110' : ''} transition-transform`} />
               <span className="text-[10px]">我的</span>
               {activeTab === 'profile' && (
-                <span className="absolute bottom-0 w-4 h-0.5 bg-brand-purple rounded-full"></span>
+                <motion.span layoutId="activeTabIndicator" className="absolute bottom-0 w-4 h-0.5 bg-brand-purple rounded-full" />
               )}
             </button>
 

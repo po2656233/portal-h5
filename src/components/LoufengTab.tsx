@@ -390,7 +390,7 @@ export default function LoufengTab({
               <span>楼凤社区</span>
               <span className="bg-gradient-to-r from-amber-400 to-yellow-500 text-black text-[7px] px-1.5 py-0.2 rounded font-black scale-90">VIP专栏</span>
             </h1>
-            <p className="text-[8px] text-pink-500 font-mono uppercase tracking-wider">Loufeng Companion Community</p>
+            <p className="text-[8px] text-pink-500 font-mono uppercase tracking-wider">Escort Community</p>
           </div>
         </div>
 
